@@ -1,0 +1,53 @@
+[
+  {
+    "id": "overview",
+    "label": "System Overview",
+    "icon": "overview",
+    "roles": ["Super Admin", "Matchmaker", "Support"]
+  },
+  {
+    "id": "experts-parent",
+    "label": "Matchmakers & Experts",
+    "icon": "experts",
+    "roles": ["Super Admin", "Matchmaker"],
+    "submenus": [
+      {
+        "id": "experts",
+        "label": "Active Consultants",
+        "roles": ["Super Admin", "Matchmaker"]
+      }
+    ]
+  },
+  {
+    "id": "users-parent",
+    "label": "Matrimonial Profiles",
+    "icon": "users",
+    "roles": ["Super Admin", "Matchmaker", "Support"],
+    "submenus": [
+      {
+        "id": "users",
+        "label": "Profiles Directory",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      }
+    ]
+  },
+  {
+    "id": "verifications-parent",
+    "label": "Verification Center",
+    "icon": "verifications",
+    "roles": ["Super Admin", "Support"],
+    "submenus": [
+      {
+        "id": "verifications",
+        "label": "Documents Queue",
+        "roles": ["Super Admin", "Support"]
+      }
+    ]
+  },
+  {
+    "id": "settings",
+    "label": "System Settings",
+    "icon": "settings",
+    "roles": ["Super Admin"]
+  }
+]
