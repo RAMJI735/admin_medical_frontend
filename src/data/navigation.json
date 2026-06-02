@@ -1,53 +1,281 @@
 [
   {
     "id": "overview",
-    "label": "System Overview",
+    "label": "Dashboard",
     "icon": "overview",
     "roles": ["Super Admin", "Matchmaker", "Support"]
   },
   {
-    "id": "experts-parent",
-    "label": "Matchmakers & Experts",
-    "icon": "experts",
-    "roles": ["Super Admin", "Matchmaker"],
-    "submenus": [
-      {
-        "id": "experts",
-        "label": "Active Consultants",
-        "roles": ["Super Admin", "Matchmaker"]
-      }
-    ]
-  },
-  {
-    "id": "users-parent",
-    "label": "Matrimonial Profiles",
-    "icon": "users",
+    "id": "medicines-parent",
+    "label": "Medicines",
+    "icon": "medicines",
     "roles": ["Super Admin", "Matchmaker", "Support"],
     "submenus": [
       {
-        "id": "users",
-        "label": "Profiles Directory",
+        "id": "all-medicines",
+        "label": "All Medicines",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "add-medicine",
+        "label": "Add Medicine",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "categories",
+        "label": "Categories",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "brands",
+        "label": "Brands",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "inventory",
+        "label": "Inventory",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "expiry-alerts",
+        "label": "Expiry Alerts",
         "roles": ["Super Admin", "Matchmaker", "Support"]
       }
     ]
   },
   {
-    "id": "verifications-parent",
-    "label": "Verification Center",
-    "icon": "verifications",
-    "roles": ["Super Admin", "Support"],
+    "id": "orders-parent",
+    "label": "Orders",
+    "icon": "orders",
+    "roles": ["Super Admin", "Matchmaker", "Support"],
     "submenus": [
       {
-        "id": "verifications",
-        "label": "Documents Queue",
-        "roles": ["Super Admin", "Support"]
+        "id": "new-orders",
+        "label": "New Orders",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "processing-orders",
+        "label": "Processing Orders",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "shipped-orders",
+        "label": "Shipped Orders",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "delivered-orders",
+        "label": "Delivered Orders",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "cancelled-orders",
+        "label": "Cancelled Orders",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
       }
     ]
   },
   {
-    "id": "settings",
-    "label": "System Settings",
+    "id": "prescriptions-parent",
+    "label": "Prescriptions",
+    "icon": "prescriptions",
+    "roles": ["Super Admin", "Matchmaker", "Support"],
+    "submenus": [
+      {
+        "id": "pending-verification",
+        "label": "Pending Verification",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "approved-prescriptions",
+        "label": "Approved",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "rejected-prescriptions",
+        "label": "Rejected",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      }
+    ]
+  },
+  {
+    "id": "customers-parent",
+    "label": "Customers",
+    "icon": "customers",
+    "roles": ["Super Admin", "Matchmaker", "Support"],
+    "submenus": [
+      {
+        "id": "all-customers",
+        "label": "All Customers",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "customer-groups",
+        "label": "Customer Groups",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      }
+    ]
+  },
+  {
+    "id": "suppliers-parent",
+    "label": "Suppliers",
+    "icon": "suppliers",
+    "roles": ["Super Admin", "Matchmaker", "Support"],
+    "submenus": [
+      {
+        "id": "all-suppliers",
+        "label": "All Suppliers",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "add-supplier",
+        "label": "Add Supplier",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "purchase-orders",
+        "label": "Purchase Orders",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      }
+    ]
+  },
+  {
+    "id": "coupons-parent",
+    "label": "Coupons & Offers",
+    "icon": "coupons",
+    "roles": ["Super Admin", "Matchmaker", "Support"],
+    "submenus": [
+      {
+        "id": "coupons",
+        "label": "Coupons",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "promotions",
+        "label": "Promotions",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      }
+    ]
+  },
+  {
+    "id": "payments-parent",
+    "label": "Payments",
+    "icon": "payments",
+    "roles": ["Super Admin", "Matchmaker", "Support"],
+    "submenus": [
+      {
+        "id": "transactions",
+        "label": "Transactions",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "refunds",
+        "label": "Refunds",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      }
+    ]
+  },
+  {
+    "id": "delivery-parent",
+    "label": "Delivery",
+    "icon": "delivery",
+    "roles": ["Super Admin", "Matchmaker", "Support"],
+    "submenus": [
+      {
+        "id": "delivery-partners",
+        "label": "Delivery Partners",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "tracking",
+        "label": "Tracking",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      }
+    ]
+  },
+  {
+    "id": "reports-parent",
+    "label": "Reports",
+    "icon": "reports",
+    "roles": ["Super Admin", "Matchmaker", "Support"],
+    "submenus": [
+      {
+        "id": "sales-report",
+        "label": "Sales Report",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "inventory-report",
+        "label": "Inventory Report",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "customer-report",
+        "label": "Customer Report",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "profit-report",
+        "label": "Profit Report",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      }
+    ]
+  },
+  {
+    "id": "users-roles-parent",
+    "label": "Users & Roles",
+    "icon": "usersRoles",
+    "roles": ["Super Admin", "Matchmaker", "Support"],
+    "submenus": [
+      {
+        "id": "users",
+        "label": "Users",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "roles",
+        "label": "Roles",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "permissions",
+        "label": "Permissions",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      }
+    ]
+  },
+  {
+    "id": "settings-parent",
+    "label": "Settings",
     "icon": "settings",
-    "roles": ["Super Admin"]
+    "roles": ["Super Admin", "Matchmaker", "Support"],
+    "submenus": [
+      {
+        "id": "store-information",
+        "label": "Store Information",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "gst-settings",
+        "label": "GST Settings",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "payment-gateway",
+        "label": "Payment Gateway",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "email-settings",
+        "label": "Email Settings",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      },
+      {
+        "id": "sms-settings",
+        "label": "SMS Settings",
+        "roles": ["Super Admin", "Matchmaker", "Support"]
+      }
+    ]
   }
 ]

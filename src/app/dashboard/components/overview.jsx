@@ -3,20 +3,20 @@
 export default function OverviewView() {
   const stats = [
     {
-      title: 'Total Matrimonial Users',
+      title: 'Total Patients',
       value: '14,820',
       change: '+12.5% this month',
       color: 'from-pink-500/20 to-purple-500/20',
       icon: (
         <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
       ),
     },
     {
-      title: 'Active Experts & Matchmakers',
-      value: '382',
-      change: '+8 new onboarded',
+      title: 'Active Pharmacists & Staff',
+      value: '38',
+      change: '+2 new onboarded',
       color: 'from-purple-500/20 to-indigo-500/20',
       icon: (
         <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,24 +25,24 @@ export default function OverviewView() {
       ),
     },
     {
-      title: 'Successful Matches',
+      title: 'Verified Prescriptions',
       value: '1,942',
-      change: '+45 couples paired',
+      change: '+45 Rx today',
       color: 'from-emerald-500/20 to-teal-500/20',
       icon: (
         <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
     },
     {
       title: 'Pending Verifications',
-      value: '47',
-      change: '22 submitted today',
+      value: '7',
+      change: '4 submitted today',
       color: 'from-amber-500/20 to-orange-500/20',
       icon: (
         <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       ),
     },
@@ -50,35 +50,35 @@ export default function OverviewView() {
 
   const activities = [
     {
-      user: 'Rohan Sharma',
-      action: 'completed document upload',
-      target: 'Profile Verification',
+      user: 'Ramesh Kumar',
+      action: 'uploaded doctor prescription for',
+      target: 'Order Verification',
       time: '5 mins ago',
-      badge: 'Verification',
+      badge: 'Prescription Upload',
       badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
     },
     {
-      user: 'Matchmaker Priya',
-      action: 'initiated matchmaking proposal for',
-      target: 'Amit Patel & Shruti Sen',
+      user: 'Pharmacist Vivek',
+      action: 'approved and signed off prescription',
+      target: 'RX-9920 (Sunita)',
       time: '20 mins ago',
-      badge: 'Matchmaking',
+      badge: 'Prescription Audit',
       badgeColor: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
     },
     {
-      user: 'System Bot',
-      action: 'completed monthly performance report for',
-      target: '35 Active Experts',
+      user: 'Compliance Bot',
+      action: 'compiled regulatory narcotics ledger for',
+      target: 'State Drug Control',
       time: '1 hour ago',
-      badge: 'System',
+      badge: 'System Audit',
       badgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
     },
     {
-      user: 'Expert Anita K.',
-      action: 'approved new onboarding for matchmaker',
-      target: 'Deepak Mehta',
+      user: 'Supplier Karan Pharma',
+      action: 'replenished warehouse stock levels for',
+      target: 'Novamox 500mg',
       time: '3 hours ago',
-      badge: 'Expert Management',
+      badge: 'Stock Replenish',
       badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
     },
   ];
@@ -87,8 +87,8 @@ export default function OverviewView() {
     <div className="space-y-8 animate-shimmer">
       {/* Page Title & Context */}
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">System Overview</h2>
-        <p className="text-zinc-400 text-sm mt-1">Live metrics and matrimonial operational analytics.</p>
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">Dashboard Overview</h2>
+        <p className="text-zinc-400 text-sm mt-1">Live metrics and pharmaceutical operational analytics.</p>
       </div>
 
       {/* Grid Stats */}
@@ -123,21 +123,21 @@ export default function OverviewView() {
 
       {/* Analytical Visualizations & Activity Feed */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* SVG Matchmaking Success Trend Chart */}
+        {/* SVG Sales Success Trend Chart */}
         <div className="glass rounded-2xl p-6 border border-border lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-foreground">Monthly Matching Progress</h3>
-              <p className="text-xs text-zinc-400 mt-0.5">Success matchmaking trends and onboarding rate.</p>
+              <h3 className="text-lg font-bold text-foreground">Monthly Sales & Refills Progress</h3>
+              <p className="text-xs text-zinc-400 mt-0.5">Sales trends and regular patient refills rate.</p>
             </div>
             <div className="flex gap-4 text-xs font-semibold">
               <div className="flex items-center gap-1.5 text-zinc-400">
                 <span className="w-2.5 h-2.5 rounded-full bg-pink-500" />
-                Successful Couples
+                Completed Orders
               </div>
               <div className="flex items-center gap-1.5 text-zinc-400">
                 <span className="w-2.5 h-2.5 rounded-full bg-purple-600" />
-                Active Profiles
+                Prescriptions Logged
               </div>
             </div>
           </div>
@@ -209,7 +209,7 @@ export default function OverviewView() {
         <div className="glass rounded-2xl p-6 border border-border space-y-6 flex flex-col justify-between">
           <div>
             <h3 className="text-lg font-bold text-foreground">Recent Operations</h3>
-            <p className="text-xs text-zinc-400 mt-0.5">Real-time matchmaker matching updates.</p>
+            <p className="text-xs text-zinc-400 mt-0.5">Real-time pharmacy dashboard updates.</p>
           </div>
 
           <div className="space-y-5 flex-1 mt-6">
@@ -220,10 +220,10 @@ export default function OverviewView() {
                   <p className="text-xs text-foreground/80 leading-relaxed">
                     <span className="font-bold text-foreground group-hover:text-pink-500 transition-colors">{act.user}</span>{' '}
                     {act.action}{' '}
-                    <span className="font-semibold text-pink-600 dark:text-pink-100">{act.target}</span>
+                    <span className="font-semibold text-pink-650 dark:text-pink-100">{act.target}</span>
                   </p>
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] text-zinc-500 font-medium">{act.time}</span>
+                    <span className="text-[10px] text-zinc-550 font-medium">{act.time}</span>
                     <span className={`text-[9px] px-2 py-0.5 rounded-md font-semibold border ${act.badgeColor}`}>
                       {act.badge}
                     </span>

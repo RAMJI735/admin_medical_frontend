@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 
 export default function SettingsView({ onProfileUpdate }) {
   // Admin details state
-  const [adminName, setAdminName] = useState('ShaadiExpert Admin');
-  const [adminEmail, setAdminEmail] = useState('admin@shaadiexpert.com');
+  const [adminName, setAdminName] = useState('MedRx Admin');
+  const [adminEmail, setAdminEmail] = useState('admin@medrx.com');
   const [adminRole, setAdminRole] = useState('Super Admin');
   const [newPassword, setNewPassword] = useState('');
   

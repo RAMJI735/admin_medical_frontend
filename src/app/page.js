@@ -33,13 +33,13 @@ export default function AuthPage() {
       if (isLogin) {
         // Mock Login logic
         const users = JSON.parse(localStorage.getItem('admin_users') || '[]');
-
+        
         // Add a default user for convenience if none exists
         if (users.length === 0) {
           const defaultAdmin = {
-            email: 'admin@shaadiexpert.com',
+            email: 'admin@medrx.com',
             password: 'password123',
-            name: 'MedicalExpert Admin',
+            name: 'MedRx Admin',
             role: 'Super Admin',
           };
           users.push(defaultAdmin);
@@ -55,7 +55,7 @@ export default function AuthPage() {
             router.push('/dashboard');
           }, 1000);
         } else {
-          setError('Invalid email or password. Use admin@shaadiexpert.com / password123 as default.');
+          setError('Invalid email or password. Use admin@medrx.com / password123 as default.');
           setLoading(false);
         }
       } else {
@@ -88,7 +88,7 @@ export default function AuthPage() {
   };
 
   const fillDemoCredentials = () => {
-    setEmail('admin@shaadiexpert.com');
+    setEmail('admin@medrx.com');
     setPassword('password123');
   };
 
@@ -97,7 +97,7 @@ export default function AuthPage() {
       {/* Decorative Background Gradients */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-pink-500/10 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-500/10 blur-[120px] pointer-events-none" />
-
+      
       {/* Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f29370a_1px,transparent_1px),linear-gradient(to_bottom,#1f29370a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
@@ -115,14 +115,14 @@ export default function AuthPage() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
               />
             </svg>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-white">
-            Medical<span className="text-pink-500">Expert</span>
+            Med<span className="text-pink-500">Rx</span>
           </h1>
-          <p className="text-zinc-400 mt-2 text-sm">Matrimonial & Matchmaking Consultant Admin Panel</p>
+          <p className="text-zinc-400 mt-2 text-sm">Pharmaceutical & Medical Inventory Admin Panel</p>
         </div>
 
         {/* Auth Card */}
@@ -134,19 +134,21 @@ export default function AuthPage() {
           <div className="flex bg-zinc-900/60 p-1 rounded-xl mb-8 border border-zinc-800">
             <button
               onClick={() => { setIsLogin(true); setError(''); setSuccess(''); }}
-              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${isLogin
-                ? 'bg-pink-500 text-white shadow-md'
-                : 'text-zinc-400 hover:text-white'
-                }`}
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                isLogin
+                  ? 'bg-pink-500 text-white shadow-md'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
             >
               Sign In
             </button>
             <button
               onClick={() => { setIsLogin(false); setError(''); setSuccess(''); }}
-              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${!isLogin
-                ? 'bg-pink-500 text-white shadow-md'
-                : 'text-zinc-400 hover:text-white'
-                }`}
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                !isLogin
+                  ? 'bg-pink-500 text-white shadow-md'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
             >
               Register
             </button>
