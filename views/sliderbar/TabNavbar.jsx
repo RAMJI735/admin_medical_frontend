@@ -1,18 +1,39 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { AppBar, Toolbar, IconButton, Typography, Avatar } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
+import LogoutIcon from '@mui/icons-material/Logout'
 import { useThemeMode } from '@/app/providers'
 
 export default function TopNavbar({
     title = 'Dashboard',
     onMenuClick
 }) {
-
+    const router = useRouter()
     const { isLightTheme, toggleTheme } = useThemeMode()
+    const [user, setUser] = useState({ name: 'Admin', role: 'Super Admin' })
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('currentUser')
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser))
+            } catch (e) {
+                console.error(e)
+            }
+        }
+    }, [])
+
+    const handleLogout = () => {
+        localStorage.removeItem('isLoggedIn')
+        localStorage.removeItem('currentUser')
+        router.push('/')
+    }
 
     return (
         <AppBar
@@ -102,10 +123,11 @@ export default function TopNavbar({
                             sx={{
                                 width: 35,
                                 height: 35,
-                                bgcolor: '#00b8f2'
+                                bgcolor: '#00b8f2',
+                                fontWeight: 700
                             }}
                         >
-                            A
+                            {user.name ? user.name.charAt(0).toUpperCase() : 'A'}
                         </Avatar>
 
                         <div>
@@ -116,7 +138,7 @@ export default function TopNavbar({
                                     lineHeight: 1
                                 }}
                             >
-                                Admin
+                                {user.name}
                             </Typography>
 
                             <Typography
@@ -125,10 +147,25 @@ export default function TopNavbar({
                                     color: 'gray'
                                 }}
                             >
-                                Super Admin
+                                {user.role}
                             </Typography>
                         </div>
                     </div>
+
+                    {/* Logout Icon Button */}
+                    <IconButton
+                        onClick={handleLogout}
+                        title="Logout"
+                        sx={{
+                            color: isLightTheme ? '#000' : '#fff',
+                            '&:hover': {
+                                color: '#ef4444',
+                                backgroundColor: isLightTheme ? 'rgba(239, 68, 68, 0.08)' : 'rgba(239, 68, 68, 0.15)'
+                            }
+                        }}
+                    >
+                        <LogoutIcon />
+                    </IconButton>
 
                 </div>
 
