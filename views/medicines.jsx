@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -22,10 +22,320 @@ import {
   Avatar,
   Snackbar,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
 } from '@mui/material';
+import { api } from '@/utils/api';
 
+// ─── Edit Medicine Modal ──────────────────────────────────────────────────────
+function EditMedicineModal({ open, medicine, categories, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    name: '', sku: '', category: '', brand: '', stock: '', price: '', expiry: ''
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (medicine) {
+      setForm({
+        name: medicine.name || '',
+        sku: medicine.sku || '',
+        category: medicine.categoryId || '',
+        brand: medicine.brand || '',
+        stock: medicine.stockRaw ?? '',
+        price: medicine.priceRaw ?? '',
+        expiry: medicine.expiry !== 'N/A' ? medicine.expiry : '',
+      });
+    }
+  }, [medicine]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.brand || !form.sku || !form.stock || !form.price || !form.category) {
+      return;
+    }
+    setSaving(true);
+    try {
+      const body = {
+        medicineName: form.name,
+        batchNumber: form.sku,
+        category: form.category,
+        manufacturer: form.brand,
+        stock: parseInt(form.stock),
+        purchasePrice: parseFloat(form.price) * 0.8,
+        sellingPrice: parseFloat(form.price),
+        mrp: parseFloat(form.price),
+        expiryDate: form.expiry
+          ? new Date(form.expiry).toISOString()
+          : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      };
+      await api.put(`/medicines/${medicine.id}`, body);
+      onSaved(`${form.name} updated successfully!`);
+      onClose();
+    } catch (err) {
+      onSaved('Failed to update medicine: ' + err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const labelSx = {
+    fontWeight: 700,
+    color: '#a1a1aa',
+    mb: 0.8,
+    display: 'block',
+    textTransform: 'uppercase',
+    fontSize: '11px',
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          background: 'var(--card-bg, #18181b)',
+          border: '1px solid var(--card-border, rgba(255,255,255,0.08))',
+          borderRadius: '20px',
+          boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          pb: 1,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>
+            Edit Medicine
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#71717a' }}>
+            Update the details for this formulation.
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose} size="small" sx={{ color: '#71717a', '&:hover': { color: 'var(--foreground)' } }}>
+          ✕
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent dividers sx={{ borderColor: 'var(--card-border)', pt: 2.5 }}>
+        <Box component="form" id="edit-medicine-form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="caption" sx={labelSx}>Medicine Name *</Typography>
+              <TextField fullWidth value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="caption" sx={labelSx}>SKU / Batch Number *</Typography>
+              <TextField fullWidth value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} required />
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="caption" sx={labelSx}>Brand / Manufacturer *</Typography>
+              <TextField fullWidth value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} required />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="caption" sx={labelSx}>Therapeutic Category *</Typography>
+              <Select fullWidth value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required>
+                {categories.map((cat) => (
+                  <MenuItem key={cat._id} value={cat._id}>{cat.categoryName}</MenuItem>
+                ))}
+              </Select>
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={4}>
+              <Typography variant="caption" sx={labelSx}>Price (₹) *</Typography>
+              <TextField fullWidth type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Typography variant="caption" sx={labelSx}>Stock Qty *</Typography>
+              <TextField fullWidth type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} required />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Typography variant="caption" sx={labelSx}>Expiry Date</Typography>
+              <TextField fullWidth type="date" value={form.expiry} onChange={(e) => setForm({ ...form, expiry: e.target.value })} InputLabelProps={{ shrink: true }} />
+            </Grid>
+          </Grid>
+        </Box>
+      </DialogContent>
+
+      <DialogActions sx={{ p: 2.5, gap: 1.5 }}>
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          sx={{ borderColor: 'var(--card-border)', color: '#a1a1aa', '&:hover': { borderColor: '#a1a1aa', color: 'white' } }}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          form="edit-medicine-form"
+          variant="contained"
+          disabled={saving}
+          sx={{
+            background: 'linear-gradient(to right, #ec4899, #9333ea)',
+            color: 'white',
+            px: 3,
+            '&:hover': { background: 'linear-gradient(to right, #db2777, #7e22ce)' },
+            '&:disabled': { opacity: 0.5 },
+          }}
+        >
+          {saving ? 'Saving…' : 'Save Changes'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+// ─── Edit Category Modal ──────────────────────────────────────────────────────
+function EditCategoryModal({ open, category, onClose, onSaved }) {
+  const [form, setForm] = useState({ name: '', description: '' });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (category) {
+      setForm({ name: category.categoryName || '', description: category.description || '' });
+    }
+  }, [category]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name) return;
+    setSaving(true);
+    try {
+      await api.put(`/categories/${category._id}`, {
+        categoryName: form.name,
+        description: form.description,
+      });
+      onSaved(`"${form.name}" updated successfully!`);
+      onClose();
+    } catch (err) {
+      onSaved('Failed to update category: ' + err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const labelSx = {
+    fontWeight: 700,
+    color: '#a1a1aa',
+    mb: 0.8,
+    display: 'block',
+    textTransform: 'uppercase',
+    fontSize: '11px',
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+      PaperProps={{
+        sx: {
+          background: 'var(--card-bg, #18181b)',
+          border: '1px solid var(--card-border, rgba(255,255,255,0.08))',
+          borderRadius: '20px',
+          boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+        },
+      }}
+    >
+      <DialogTitle sx={{ pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>
+            Edit Category
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#71717a' }}>
+            Rename or update the description.
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose} size="small" sx={{ color: '#71717a', '&:hover': { color: 'var(--foreground)' } }}>
+          ✕
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent dividers sx={{ borderColor: 'var(--card-border)', pt: 2.5 }}>
+        <Box component="form" id="edit-category-form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Box>
+            <Typography variant="caption" sx={labelSx}>Category Name *</Typography>
+            <TextField
+              fullWidth
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+          </Box>
+          <Box>
+            <Typography variant="caption" sx={labelSx}>Description</Typography>
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              placeholder="e.g. Pain relief and antipyretic formulations"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+          </Box>
+        </Box>
+      </DialogContent>
+
+      <DialogActions sx={{ p: 2.5, gap: 1.5 }}>
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          sx={{ borderColor: 'var(--card-border)', color: '#a1a1aa', '&:hover': { borderColor: '#a1a1aa', color: 'white' } }}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          form="edit-category-form"
+          variant="contained"
+          disabled={saving}
+          sx={{
+            background: 'linear-gradient(to right, #ec4899, #9333ea)',
+            color: 'white',
+            px: 3,
+            '&:hover': { background: 'linear-gradient(to right, #db2777, #7e22ce)' },
+            '&:disabled': { opacity: 0.5 },
+          }}
+        >
+          {saving ? 'Saving…' : 'Save Changes'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function MedicinesView({ activeTab }) {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [medicines, setMedicines] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [newMed, setNewMed] = useState({ name: '', sku: '', category: '', brand: '', stock: '', price: '', expiry: '' });
+  const [newCat, setNewCat] = useState({ name: '', description: '' });
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Delete confirm states
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [deleteCatConfirmId, setDeleteCatConfirmId] = useState(null);
+
+  // Edit modal states
+  const [editMedicine, setEditMedicine] = useState(null);  // medicine object or null
+  const [editCategory, setEditCategory] = useState(null);  // category object or null
 
   const showToast = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });
@@ -35,49 +345,139 @@ export default function MedicinesView({ activeTab }) {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // State for formulations
-  const [medicines, setMedicines] = useState([
-    { id: 1, name: 'Paracetamol 650mg', sku: 'MED-7291', category: 'Analgesics', brand: 'Crocin', stock: 120, price: '₹45.00', status: 'In Stock', expiry: '2027-10-15' },
-    { id: 2, name: 'Amoxicillin 500mg', sku: 'MED-4109', category: 'Antibiotics', brand: 'Novamox', stock: 8, price: '₹120.00', status: 'Low Stock', expiry: '2026-07-20' },
-    { id: 3, name: 'Metformin 1000mg', sku: 'MED-8812', category: 'Antidiabetics', brand: 'Glycomet', stock: 240, price: '₹85.00', status: 'In Stock', expiry: '2028-02-10' },
-    { id: 4, name: 'Atorvastatin 10mg', sku: 'MED-3341', category: 'Cardiovascular', brand: 'Lipvas', stock: 0, price: '₹140.00', status: 'Out of Stock', expiry: '2026-06-25' },
-    { id: 5, name: 'Ibuprofen 400mg', sku: 'MED-2209', category: 'Analgesics', brand: 'Brufen', stock: 150, price: '₹38.00', status: 'In Stock', expiry: '2027-12-05' },
-    { id: 6, name: 'Cough Syrup 100ml', sku: 'MED-0912', category: 'Respiratory', brand: 'Benadryl', stock: 3, price: '₹105.00', status: 'Low Stock', expiry: '2026-06-12' },
-  ]);
+  const loadCategories = async () => {
+    try {
+      const data = await api.get('/categories');
+      setCategories(data);
+      if (data.length > 0) {
+        setNewMed(prev => ({ ...prev, category: data[0]._id }));
+      }
+    } catch (err) {
+      showToast('Failed to load categories: ' + err.message, 'error');
+    }
+  };
 
-  const [newMed, setNewMed] = useState({ name: '', sku: '', category: 'Analgesics', brand: '', stock: '', price: '', expiry: '' });
-  const [searchQuery, setSearchQuery] = useState('');
+  const loadMedicines = async () => {
+    setLoading(true);
+    try {
+      const data = await api.get('/medicines?limit=100');
+      const formatted = data.medicines.map(m => {
+        const stockNum = m.stock;
+        const status = stockNum === 0 ? 'Out of Stock' : (stockNum <= m.minStockLevel ? 'Low Stock' : 'In Stock');
+        return {
+          id: m._id,
+          name: m.medicineName,
+          sku: m.batchNumber,
+          categoryId: m.category?._id || '',
+          category: m.category?.categoryName || 'Uncategorized',
+          brand: m.manufacturer,
+          stock: stockNum,
+          stockRaw: stockNum,
+          price: `₹${m.sellingPrice.toFixed(2)}`,
+          priceRaw: m.sellingPrice,
+          status,
+          expiry: m.expiryDate ? new Date(m.expiryDate).toISOString().split('T')[0] : 'N/A'
+        };
+      });
+      setMedicines(formatted);
+    } catch (err) {
+      showToast('Failed to load medicines: ' + err.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCategories();
+    loadMedicines();
+  }, []);
 
   const filteredMedicines = useMemo(() => {
-    return medicines.filter(m => 
-      m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    return medicines.filter(m =>
+      m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.sku.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [medicines, searchQuery]);
 
-  const handleAddMedicineSubmit = (e) => {
+  // ── Medicine CRUD ──
+  const handleAddMedicineSubmit = async (e) => {
     e.preventDefault();
-    if (!newMed.name || !newMed.brand || !newMed.sku || !newMed.stock || !newMed.price) {
+    if (!newMed.name || !newMed.brand || !newMed.sku || !newMed.stock || !newMed.price || !newMed.category) {
       showToast('Please fill in all required fields.', 'error');
       return;
     }
-    const stockNum = parseInt(newMed.stock);
-    const status = stockNum === 0 ? 'Out of Stock' : (stockNum <= 10 ? 'Low Stock' : 'In Stock');
-    const newEntry = {
-      id: medicines.length + 1,
-      name: newMed.name,
-      sku: newMed.sku,
-      category: newMed.category,
-      brand: newMed.brand,
-      stock: stockNum,
-      price: `₹${parseFloat(newMed.price).toFixed(2)}`,
-      status,
-      expiry: newMed.expiry || '2027-12-31'
-    };
-    setMedicines([newEntry, ...medicines]);
-    showToast(`${newMed.name} added successfully!`);
-    setNewMed({ name: '', sku: '', category: 'Analgesics', brand: '', stock: '', price: '', expiry: '' });
+    try {
+      const body = {
+        medicineName: newMed.name,
+        batchNumber: newMed.sku,
+        category: newMed.category,
+        manufacturer: newMed.brand,
+        stock: parseInt(newMed.stock),
+        purchasePrice: parseFloat(newMed.price) * 0.8,
+        sellingPrice: parseFloat(newMed.price),
+        mrp: parseFloat(newMed.price),
+        expiryDate: newMed.expiry ? new Date(newMed.expiry).toISOString() : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      };
+      await api.post('/medicines', body);
+      showToast(`${newMed.name} added successfully!`);
+      loadMedicines();
+      setNewMed({ name: '', sku: '', category: categories[0]?._id || '', brand: '', stock: '', price: '', expiry: '' });
+    } catch (err) {
+      showToast('Failed to add medicine: ' + err.message, 'error');
+    }
+  };
+
+  const handleDeleteMedicine = async (id, name) => {
+    if (deleteConfirmId !== id) {
+      setDeleteConfirmId(id);
+      setTimeout(() => setDeleteConfirmId(prev => prev === id ? null : prev), 3000);
+      return;
+    }
+    try {
+      await api.delete(`/medicines/${id}`);
+      showToast(`${name} deleted successfully!`);
+      loadMedicines();
+      setDeleteConfirmId(null);
+    } catch (err) {
+      showToast('Failed to delete medicine: ' + err.message, 'error');
+    }
+  };
+
+  // ── Category CRUD ──
+  const handleAddCategorySubmit = async (e) => {
+    e.preventDefault();
+    if (!newCat.name) {
+      showToast('Please fill in Category Name.', 'error');
+      return;
+    }
+    try {
+      await api.post('/categories', {
+        categoryName: newCat.name,
+        description: newCat.description,
+      });
+      showToast(`${newCat.name} category added successfully!`);
+      setNewCat({ name: '', description: '' });
+      loadCategories();
+    } catch (err) {
+      showToast('Failed to add category: ' + err.message, 'error');
+    }
+  };
+
+  const handleDeleteCategory = async (id, name) => {
+    if (deleteCatConfirmId !== id) {
+      setDeleteCatConfirmId(id);
+      setTimeout(() => setDeleteCatConfirmId(prev => prev === id ? null : prev), 3000);
+      return;
+    }
+    try {
+      await api.delete(`/categories/${id}`);
+      showToast(`"${name}" deleted successfully!`);
+      loadCategories();
+      setDeleteCatConfirmId(null);
+    } catch (err) {
+      showToast('Failed to delete category: ' + err.message, 'error');
+    }
   };
 
   return (
@@ -93,7 +493,22 @@ export default function MedicinesView({ activeTab }) {
         </Alert>
       </Snackbar>
 
-      {/* ALL MEDICINES VIEW */}
+      {/* ── Edit Modals ── */}
+      <EditMedicineModal
+        open={!!editMedicine}
+        medicine={editMedicine}
+        categories={categories}
+        onClose={() => setEditMedicine(null)}
+        onSaved={(msg, severity) => { showToast(msg, severity || 'success'); loadMedicines(); }}
+      />
+      <EditCategoryModal
+        open={!!editCategory}
+        category={editCategory}
+        onClose={() => setEditCategory(null)}
+        onSaved={(msg, severity) => { showToast(msg, severity || 'success'); loadCategories(); }}
+      />
+
+      {/* ── ALL MEDICINES VIEW ── */}
       {activeTab === 'all-medicines' && (
         <Paper className="glass" sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { sm: 'center' }, gap: 2, mb: 3 }}>
@@ -114,7 +529,7 @@ export default function MedicinesView({ activeTab }) {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Medicine & SKU</TableCell>
+                  <TableCell>Medicine &amp; SKU</TableCell>
                   <TableCell>Category</TableCell>
                   <TableCell>Brand</TableCell>
                   <TableCell>Price</TableCell>
@@ -150,14 +565,30 @@ export default function MedicinesView({ activeTab }) {
                       />
                     </TableCell>
                     <TableCell align="right">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => showToast(`Opening details for ${m.name}`)}
-                        sx={{ borderColor: 'var(--card-border)', color: '#a1a1aa', '&:hover': { borderColor: '#a1a1aa', color: 'white' } }}
-                      >
-                        Edit
-                      </Button>
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => setEditMedicine(m)}
+                          sx={{ borderColor: 'var(--card-border)', color: '#a1a1aa', '&:hover': { borderColor: '#a1a1aa', color: 'white' } }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          onClick={() => handleDeleteMedicine(m.id, m.name)}
+                          sx={{
+                            borderColor: deleteConfirmId === m.id ? '#ef4444' : 'rgba(239, 68, 68, 0.2)',
+                            color: '#ef4444',
+                            bgcolor: deleteConfirmId === m.id ? 'rgba(239,68,68,0.1)' : 'transparent',
+                            '&:hover': { borderColor: '#ef4444', bgcolor: 'rgba(239,68,68,0.15)' }
+                          }}
+                        >
+                          {deleteConfirmId === m.id ? 'Confirm?' : 'Delete'}
+                        </Button>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -167,7 +598,7 @@ export default function MedicinesView({ activeTab }) {
         </Paper>
       )}
 
-      {/* ADD MEDICINE VIEW */}
+      {/* ── ADD MEDICINE VIEW ── */}
       {activeTab === 'add-medicine' && (
         <Paper className="glass" sx={{ p: 3, maxWidth: 640 }}>
           <Box sx={{ mb: 3 }}>
@@ -179,49 +610,25 @@ export default function MedicinesView({ activeTab }) {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Medicine Name *</Typography>
-                <TextField
-                  fullWidth
-                  placeholder="e.g. Paracetamol 650mg"
-                  value={newMed.name}
-                  onChange={(e) => setNewMed({ ...newMed, name: e.target.value })}
-                  required
-                />
+                <TextField fullWidth placeholder="e.g. Paracetamol 650mg" value={newMed.name} onChange={(e) => setNewMed({ ...newMed, name: e.target.value })} required />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>SKU / Code *</Typography>
-                <TextField
-                  fullWidth
-                  placeholder="e.g. MED-1092"
-                  value={newMed.sku}
-                  onChange={(e) => setNewMed({ ...newMed, sku: e.target.value })}
-                  required
-                />
+                <TextField fullWidth placeholder="e.g. MED-1092" value={newMed.sku} onChange={(e) => setNewMed({ ...newMed, sku: e.target.value })} required />
               </Grid>
             </Grid>
 
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Brand / Manufacturer *</Typography>
-                <TextField
-                  fullWidth
-                  placeholder="e.g. Abbott Labs"
-                  value={newMed.brand}
-                  onChange={(e) => setNewMed({ ...newMed, brand: e.target.value })}
-                  required
-                />
+                <TextField fullWidth placeholder="e.g. Abbott Labs" value={newMed.brand} onChange={(e) => setNewMed({ ...newMed, brand: e.target.value })} required />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Therapeutic Category</Typography>
-                <Select
-                  fullWidth
-                  value={newMed.category}
-                  onChange={(e) => setNewMed({ ...newMed, category: e.target.value })}
-                >
-                  <MenuItem value="Analgesics">Analgesics (Pain Relief)</MenuItem>
-                  <MenuItem value="Antibiotics">Antibiotics (Anti-bacterial)</MenuItem>
-                  <MenuItem value="Antidiabetics">Antidiabetics</MenuItem>
-                  <MenuItem value="Cardiovascular">Cardiovascular</MenuItem>
-                  <MenuItem value="Respiratory">Respiratory / Cough</MenuItem>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Therapeutic Category *</Typography>
+                <Select fullWidth value={newMed.category} onChange={(e) => setNewMed({ ...newMed, category: e.target.value })} required>
+                  {categories.map((cat) => (
+                    <MenuItem key={cat._id} value={cat._id}>{cat.categoryName}</MenuItem>
+                  ))}
                 </Select>
               </Grid>
             </Grid>
@@ -229,35 +636,15 @@ export default function MedicinesView({ activeTab }) {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={4}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Price (₹) *</Typography>
-                <TextField
-                  fullWidth
-                  type="number"
-                  placeholder="e.g. 140.00"
-                  value={newMed.price}
-                  onChange={(e) => setNewMed({ ...newMed, price: e.target.value })}
-                  required
-                />
+                <TextField fullWidth type="number" placeholder="e.g. 140.00" value={newMed.price} onChange={(e) => setNewMed({ ...newMed, price: e.target.value })} required />
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Initial Stock Qty *</Typography>
-                <TextField
-                  fullWidth
-                  type="number"
-                  placeholder="e.g. 100"
-                  value={newMed.stock}
-                  onChange={(e) => setNewMed({ ...newMed, stock: e.target.value })}
-                  required
-                />
+                <TextField fullWidth type="number" placeholder="e.g. 100" value={newMed.stock} onChange={(e) => setNewMed({ ...newMed, stock: e.target.value })} required />
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Expiry Date</Typography>
-                <TextField
-                  fullWidth
-                  type="date"
-                  value={newMed.expiry}
-                  onChange={(e) => setNewMed({ ...newMed, expiry: e.target.value })}
-                  InputLabelProps={{ shrink: true }}
-                />
+                <TextField fullWidth type="date" value={newMed.expiry} onChange={(e) => setNewMed({ ...newMed, expiry: e.target.value })} InputLabelProps={{ shrink: true }} />
               </Grid>
             </Grid>
 
@@ -268,9 +655,7 @@ export default function MedicinesView({ activeTab }) {
                 background: 'linear-gradient(to right, #ec4899, #9333ea)',
                 color: 'white',
                 py: 1.5,
-                '&:hover': {
-                  background: 'linear-gradient(to right, #db2777, #7e22ce)',
-                }
+                '&:hover': { background: 'linear-gradient(to right, #db2777, #7e22ce)' }
               }}
             >
               Add Formulation
@@ -279,46 +664,150 @@ export default function MedicinesView({ activeTab }) {
         </Paper>
       )}
 
-      {/* CATEGORIES VIEW */}
+      {/* ── CATEGORIES VIEW ── */}
       {activeTab === 'categories' && (
         <Box>
           <Box sx={{ mb: 3 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>Medicine Categories</Typography>
             <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Classification directories for managing inventory therapeutic index.</Typography>
           </Box>
+
           <Grid container spacing={3}>
-            {[
-              { name: 'Analgesics & Antipyretics', count: 18, desc: 'Pain management and fever reduction formulations.' },
-              { name: 'Antibiotics & Antivirals', count: 24, desc: 'Bacterial and viral infection medications.' },
-              { name: 'Antidiabetics', count: 12, desc: 'Blood sugar regulation capsules and metformin compounds.' },
-              { name: 'Cardiovascular Agents', count: 15, desc: 'Cholesterol reducers, blood pressure pills, statins.' },
-              { name: 'Respiratory and Pulmonology', count: 9, desc: 'Bronchodilators, antihistamines, cough syrups.' },
-              { name: 'Dermatological Compounding', count: 11, desc: 'Antifungal ointments, skin steroids, moisturizers.' }
-            ].map((cat, i) => (
-              <Grid item xs={12} sm={6} lg={4} key={i}>
-                <Card className="glass" sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', '&:hover': { borderColor: 'var(--foreground)' }, transition: 'border-color 0.3s' }}>
-                  <CardContent sx={{ p: 3 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>{cat.name}</Typography>
-                      <Chip label={`${cat.count} Meds`} size="small" sx={{ fontSize: '10px', fontWeight: 700, color: '#ec4899', backgroundColor: 'rgba(236,72,153,0.08)', borderColor: 'rgba(236,72,153,0.2)', borderStyle: 'solid', borderWidth: '1px' }} />
-                    </Box>
-                    <Typography variant="caption" sx={{ color: '#a1a1aa', lineHeight: 1.5, display: 'block' }}>{cat.desc}</Typography>
-                  </CardContent>
-                  <Box 
-                    onClick={() => showToast(`Navigating to ${cat.name} index`)}
-                    sx={{ p: 2, borderTop: '1px solid var(--card-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10px', color: '#71717a', cursor: 'pointer', '&:hover': { color: 'var(--foreground)' } }}
-                  >
-                    <span>Browse Category Directory</span>
-                    <span>→</span>
-                  </Box>
-                </Card>
+            {/* Categories List */}
+            <Grid item xs={12} md={8}>
+              <Grid container spacing={2.5}>
+                {categories.map((cat) => {
+                  const count = medicines.filter(m => m.category === cat.categoryName).length;
+                  const isDeleteConfirm = deleteCatConfirmId === cat._id;
+                  return (
+                    <Grid item xs={12} sm={6} key={cat._id}>
+                      <Card
+                        className="glass"
+                        sx={{
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          '&:hover': { borderColor: 'var(--foreground)' },
+                          transition: 'border-color 0.3s',
+                        }}
+                      >
+                        <CardContent sx={{ p: 3 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>
+                              {cat.categoryName}
+                            </Typography>
+                            <Chip
+                              label={`${count} Meds`}
+                              size="small"
+                              sx={{
+                                fontSize: '10px', fontWeight: 700,
+                                color: '#ec4899',
+                                backgroundColor: 'rgba(236,72,153,0.08)',
+                                borderColor: 'rgba(236,72,153,0.2)',
+                                borderStyle: 'solid', borderWidth: '1px',
+                              }}
+                            />
+                          </Box>
+                          <Typography variant="caption" sx={{ color: '#a1a1aa', lineHeight: 1.5, display: 'block' }}>
+                            {cat.description || 'No description available.'}
+                          </Typography>
+                        </CardContent>
+
+                        {/* Action footer */}
+                        <Box
+                          sx={{
+                            p: 1.5,
+                            borderTop: '1px solid var(--card-border)',
+                            display: 'flex',
+                            gap: 1,
+                            justifyContent: 'flex-end',
+                          }}
+                        >
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => setEditCategory(cat)}
+                            sx={{
+                              fontSize: '11px',
+                              borderColor: 'var(--card-border)',
+                              color: '#a1a1aa',
+                              '&:hover': { borderColor: '#a1a1aa', color: 'white' },
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => handleDeleteCategory(cat._id, cat.categoryName)}
+                            sx={{
+                              fontSize: '11px',
+                              borderColor: isDeleteConfirm ? '#ef4444' : 'rgba(239,68,68,0.2)',
+                              color: '#ef4444',
+                              bgcolor: isDeleteConfirm ? 'rgba(239,68,68,0.1)' : 'transparent',
+                              '&:hover': { borderColor: '#ef4444', bgcolor: 'rgba(239,68,68,0.15)' },
+                            }}
+                          >
+                            {isDeleteConfirm ? 'Confirm?' : 'Delete'}
+                          </Button>
+                        </Box>
+                      </Card>
+                    </Grid>
+                  );
+                })}
               </Grid>
-            ))}
+            </Grid>
+
+            {/* Add Category Form Card */}
+            <Grid item xs={12} md={4}>
+              <Paper className="glass" sx={{ p: 3 }}>
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>Add New Category</Typography>
+                  <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Create a new therapeutic group index in the database.</Typography>
+                </Box>
+                <Box component="form" onSubmit={handleAddCategorySubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                  <Box>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Category Name *</Typography>
+                    <TextField
+                      fullWidth
+                      placeholder="e.g. Analgesics"
+                      value={newCat.name}
+                      onChange={(e) => setNewCat({ ...newCat, name: e.target.value })}
+                      required
+                    />
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Description</Typography>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={3}
+                      placeholder="e.g. Pain relief and antipyretic formulations"
+                      value={newCat.description}
+                      onChange={(e) => setNewCat({ ...newCat, description: e.target.value })}
+                    />
+                  </Box>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      background: 'linear-gradient(to right, #ec4899, #9333ea)',
+                      color: 'white',
+                      py: 1.2,
+                      '&:hover': { background: 'linear-gradient(to right, #db2777, #7e22ce)' }
+                    }}
+                  >
+                    Add Category
+                  </Button>
+                </Box>
+              </Paper>
+            </Grid>
           </Grid>
         </Box>
       )}
 
-      {/* BRANDS VIEW */}
+      {/* ── BRANDS VIEW ── */}
       {activeTab === 'brands' && (
         <Box>
           <Box sx={{ mb: 3 }}>
@@ -350,7 +839,7 @@ export default function MedicinesView({ activeTab }) {
         </Box>
       )}
 
-      {/* INVENTORY VIEW */}
+      {/* ── INVENTORY VIEW ── */}
       {activeTab === 'inventory' && (
         <Paper className="glass" sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -367,21 +856,21 @@ export default function MedicinesView({ activeTab }) {
             <Grid item xs={12} md={4}>
               <Box sx={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', p: 3, borderRadius: '16px' }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#10b981', textTransform: 'uppercase' }}>Adequate Stock</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--foreground)', mt: 1 }}>1,248 Items</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--foreground)', mt: 1 }}>{medicines.filter(m => m.status === 'In Stock').length} Items</Typography>
                 <Typography variant="caption" sx={{ color: '#71717a', mt: 0.5, display: 'block' }}>No restock necessary right now.</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} md={4}>
               <Box sx={{ backgroundColor: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.15)', p: 3, borderRadius: '16px' }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase' }}>Low Stock Warning</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--foreground)', mt: 1 }}>14 Items</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--foreground)', mt: 1 }}>{medicines.filter(m => m.status === 'Low Stock').length} Items</Typography>
                 <Typography variant="caption" sx={{ color: '#71717a', mt: 0.5, display: 'block' }}>Quantity is below the safety limit threshold.</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} md={4}>
               <Box sx={{ backgroundColor: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)', p: 3, borderRadius: '16px' }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#ef4444', textTransform: 'uppercase' }}>Out of Stock</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--foreground)', mt: 1 }}>3 Items</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--foreground)', mt: 1 }}>{medicines.filter(m => m.status === 'Out of Stock').length} Items</Typography>
                 <Typography variant="caption" sx={{ color: '#71717a', mt: 0.5, display: 'block' }}>Sales disabled due to vacant inventory slots.</Typography>
               </Box>
             </Grid>
@@ -399,31 +888,33 @@ export default function MedicinesView({ activeTab }) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 700, color: 'var(--foreground)' }}>Amoxicillin 500mg</TableCell>
-                  <TableCell sx={{ color: '#f59e0b', fontWeight: 650 }}>8 Units</TableCell>
-                  <TableCell sx={{ color: '#a1a1aa' }}>20 Units</TableCell>
-                  <TableCell><Chip label="Auto-Reordering" size="small" variant="outlined" sx={{ color: '#f59e0b', borderColor: 'rgba(245,158,11,0.2)', fontSize: '9px', fontWeight: 700 }} /></TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 700, color: 'var(--foreground)' }}>Atorvastatin 10mg</TableCell>
-                  <TableCell sx={{ color: '#ef4444', fontWeight: 650 }}>0 Units</TableCell>
-                  <TableCell sx={{ color: '#a1a1aa' }}>30 Units</TableCell>
-                  <TableCell><Chip label="CRITICAL" size="small" sx={{ bgcolor: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)', borderStyle: 'solid', borderWidth: '1px', fontSize: '9px', fontWeight: 700 }} /></TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 700, color: 'var(--foreground)' }}>Cough Syrup 100ml</TableCell>
-                  <TableCell sx={{ color: '#f59e0b', fontWeight: 650 }}>3 Units</TableCell>
-                  <TableCell sx={{ color: '#a1a1aa' }}>15 Units</TableCell>
-                  <TableCell><Chip label="Manual Review Required" size="small" variant="outlined" sx={{ color: '#f59e0b', borderColor: 'rgba(245,158,11,0.2)', fontSize: '9px', fontWeight: 700 }} /></TableCell>
-                </TableRow>
+                {medicines.filter(m => m.status !== 'In Stock').map((m) => (
+                  <TableRow key={m.id}>
+                    <TableCell sx={{ fontWeight: 700, color: 'var(--foreground)' }}>{m.name}</TableCell>
+                    <TableCell sx={{ color: m.status === 'Out of Stock' ? '#ef4444' : '#f59e0b', fontWeight: 650 }}>{m.stock} Units</TableCell>
+                    <TableCell sx={{ color: '#a1a1aa' }}>10 Units</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={m.status === 'Out of Stock' ? 'CRITICAL' : 'Auto-Reordering'}
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          color: m.status === 'Out of Stock' ? '#ef4444' : '#f59e0b',
+                          borderColor: m.status === 'Out of Stock' ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)',
+                          fontSize: '9px',
+                          fontWeight: 700,
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
         </Paper>
       )}
 
-      {/* EXPIRY ALERTS VIEW */}
+      {/* ── EXPIRY ALERTS VIEW ── */}
       {activeTab === 'expiry-alerts' && (
         <Paper className="glass" sx={{ p: 3 }}>
           <Box sx={{ mb: 3 }}>
@@ -432,49 +923,63 @@ export default function MedicinesView({ activeTab }) {
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {[
-              { id: 1, name: 'Cough Syrup 100ml', sku: 'MED-0912', brand: 'Benadryl', date: '2026-06-12', days: '10 days left', severity: 'critical' },
-              { id: 2, name: 'Atorvastatin 10mg', sku: 'MED-3341', brand: 'Lipvas', date: '2026-06-25', days: '23 days left', severity: 'warning' },
-              { id: 3, name: 'Amoxicillin 500mg', sku: 'MED-4109', brand: 'Novamox', date: '2026-07-20', days: '48 days left', severity: 'info' }
-            ].map((alert) => (
-              <Box 
-                key={alert.id} 
-                sx={{ 
-                  p: 2.5, 
-                  borderRadius: '16px', 
-                  border: '1px solid',
-                  backgroundColor: alert.severity === 'critical' ? 'rgba(239, 68, 68, 0.03)' : alert.severity === 'warning' ? 'rgba(245, 158, 11, 0.03)' : 'rgba(255, 255, 255, 0.02)',
-                  borderColor: alert.severity === 'critical' ? 'rgba(239, 68, 68, 0.15)' : alert.severity === 'warning' ? 'rgba(245, 158, 11, 0.15)' : 'var(--card-border)',
-                  display: 'flex',
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  justifyContent: 'space-between',
-                  alignItems: { sm: 'center' },
-                  gap: 2,
-                }}
-              >
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                  <Avatar sx={{ bgcolor: alert.severity === 'critical' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: alert.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
-                    ⚠️
-                  </Avatar>
-                  <Box>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>{alert.name}</Typography>
-                    <Typography variant="caption" sx={{ color: '#71717a' }}>{alert.sku} • {alert.brand}</Typography>
-                  </Box>
-                </Box>
-                <Box>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: alert.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>{alert.days}</Typography>
-                  <Typography variant="caption" sx={{ color: '#71717a' }}>Expires: {alert.date}</Typography>
-                </Box>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => showToast(`Initiated disposal protocol for batch of ${alert.name}`)}
-                  sx={{ borderColor: 'var(--card-border)', color: '#a1a1aa', '&:hover': { borderColor: '#ef4444', color: '#f87171' } }}
+            {medicines.map((m) => {
+              if (m.expiry === 'N/A') return null;
+              const expiryDate = new Date(m.expiry);
+              const diffTime = expiryDate.getTime() - Date.now();
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              if (diffDays > 180) return null;
+              const severity = diffDays < 30 ? 'critical' : (diffDays < 90 ? 'warning' : 'info');
+              return (
+                <Box
+                  key={m.id}
+                  sx={{
+                    p: 2.5,
+                    borderRadius: '16px',
+                    border: '1px solid',
+                    backgroundColor: severity === 'critical' ? 'rgba(239, 68, 68, 0.03)' : severity === 'warning' ? 'rgba(245, 158, 11, 0.03)' : 'rgba(255, 255, 255, 0.02)',
+                    borderColor: severity === 'critical' ? 'rgba(239, 68, 68, 0.15)' : severity === 'warning' ? 'rgba(245, 158, 11, 0.15)' : 'var(--card-border)',
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    justifyContent: 'space-between',
+                    alignItems: { sm: 'center' },
+                    gap: 2,
+                  }}
                 >
-                  Dispose Batch
-                </Button>
-              </Box>
-            ))}
+                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                    <Avatar sx={{ bgcolor: severity === 'critical' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
+                      ⚠️
+                    </Avatar>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>{m.name}</Typography>
+                      <Typography variant="caption" sx={{ color: '#71717a' }}>{m.sku} • {m.brand}</Typography>
+                    </Box>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
+                      {diffDays < 0 ? 'Expired' : `${diffDays} days left`}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#71717a' }}>Expires: {m.expiry}</Typography>
+                  </Box>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => handleDeleteMedicine(m.id, m.name)}
+                    sx={{
+                      borderColor: deleteConfirmId === m.id ? '#ef4444' : 'var(--card-border)',
+                      color: deleteConfirmId === m.id ? '#ef4444' : '#a1a1aa',
+                      bgcolor: deleteConfirmId === m.id ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
+                      '&:hover': { borderColor: '#ef4444', color: '#f87171', bgcolor: 'rgba(239, 68, 68, 0.05)' }
+                    }}
+                  >
+                    {deleteConfirmId === m.id ? 'Confirm?' : 'Dispose Batch'}
+                  </Button>
+                </Box>
+              );
+            }).filter(Boolean)}
+            {medicines.filter(m => m.expiry !== 'N/A' && (new Date(m.expiry).getTime() - Date.now()) / (1000 * 60 * 60 * 24) <= 180).length === 0 && (
+              <Typography variant="body2" sx={{ color: '#a1a1aa', textAlign: 'center', py: 4 }}>No near-term expiry alerts.</Typography>
+            )}
           </Box>
         </Paper>
       )}

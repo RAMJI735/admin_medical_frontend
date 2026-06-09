@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { api } from '@/utils/api';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -22,60 +23,48 @@ export default function AuthPage() {
     }
   }, [router]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setLoading(true);
 
-    // Simulate small delay
-    setTimeout(() => {
+    try {
       if (isLogin) {
-        // Mock Login logic
-        const users = JSON.parse(localStorage.getItem('admin_users') || '[]');
+        // Real Login logic
+        const data = await api.post('/auth/login', { email, password });
         
-        // Add a default user for convenience if none exists
-        if (users.length === 0) {
-          const defaultAdmin = {
-            email: 'admin@medrx.com',
-            password: 'password123',
-            name: 'MedRx Admin',
-            role: 'Super Admin',
-          };
-          users.push(defaultAdmin);
-          localStorage.setItem('admin_users', JSON.stringify(users));
-        }
-
-        const user = users.find((u) => u.email === email && u.password === password);
-        if (user) {
-          localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          setSuccess('Login successful! Redirecting...');
-          setTimeout(() => {
-            router.push('/dashboard');
-          }, 1000);
-        } else {
-          setError('Invalid email or password. Use admin@medrx.com / password123 as default.');
-          setLoading(false);
-        }
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('currentUser', JSON.stringify({
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.type || 'Super Admin',
+        }));
+        
+        setSuccess('Login successful! Redirecting...');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000);
       } else {
-        // Mock Signup logic
+        // Real Signup logic
         if (!name || !email || !password) {
           setError('All fields are required.');
           setLoading(false);
           return;
         }
 
-        const users = JSON.parse(localStorage.getItem('admin_users') || '[]');
-        if (users.some((u) => u.email === email)) {
-          setError('Email is already registered.');
-          setLoading(false);
-          return;
+        let backendType = 'admin';
+        if (role === 'Super Admin') {
+          backendType = 'superadmin';
         }
 
-        const newUser = { name, email, password, role };
-        users.push(newUser);
-        localStorage.setItem('admin_users', JSON.stringify(users));
+        await api.post('/auth/signup', {
+          name,
+          email,
+          password,
+          type: backendType,
+        });
 
         setSuccess('Account created successfully! Switching to login...');
         setTimeout(() => {
@@ -84,7 +73,10 @@ export default function AuthPage() {
           setLoading(false);
         }, 1500);
       }
-    }, 800);
+    } catch (err) {
+      setError(err.message || 'An error occurred during authentication.');
+      setLoading(false);
+    }
   };
 
   const fillDemoCredentials = () => {
