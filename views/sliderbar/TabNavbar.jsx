@@ -9,6 +9,7 @@ import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useThemeMode } from '@/app/providers'
+import { useAuth } from "../../services/AuthService/AuthContext"
 
 export default function TopNavbar({
     title = 'Dashboard',
@@ -16,22 +17,12 @@ export default function TopNavbar({
 }) {
     const router = useRouter()
     const { isLightTheme, toggleTheme } = useThemeMode()
-    const [user, setUser] = useState({ name: 'Admin', role: 'Super Admin' })
-
-    useEffect(() => {
-        const storedUser = localStorage.getItem('currentUser')
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser))
-            } catch (e) {
-                console.error(e)
-            }
-        }
-    }, [])
+    const { user: authUser, logout } = useAuth()
+    
+    const user = authUser || { name: 'Admin', role: 'Super Admin' }
 
     const handleLogout = () => {
-        localStorage.removeItem('isLoggedIn')
-        localStorage.removeItem('currentUser')
+        logout()
         router.push('/')
     }
 

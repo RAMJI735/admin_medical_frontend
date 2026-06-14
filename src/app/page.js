@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/utils/api';
+import { useAuth } from '../../services/AuthService/AuthContext';
 
 export default function AuthPage() {
   const router = useRouter();
+  const { login, signup } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,16 +32,8 @@ export default function AuthPage() {
 
     try {
       if (isLogin) {
-        // Real Login logic
-        const data = await api.post('/auth/login', { email, password });
-        
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('currentUser', JSON.stringify({
-          name: data.user.name,
-          email: data.user.email,
-          role: data.user.type || 'Super Admin',
-        }));
+        // Use auth context login
+        await login(email, password);
         
         setSuccess('Login successful! Redirecting...');
         setTimeout(() => {
@@ -54,17 +47,7 @@ export default function AuthPage() {
           return;
         }
 
-        let backendType = 'admin';
-        if (role === 'Super Admin') {
-          backendType = 'superadmin';
-        }
-
-        await api.post('/auth/signup', {
-          name,
-          email,
-          password,
-          type: backendType,
-        });
+        await signup(name, email, password, role);
 
         setSuccess('Account created successfully! Switching to login...');
         setTimeout(() => {

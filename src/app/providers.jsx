@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { AuthProvider } from '../../services/AuthService/AuthContext';
+import { MedicineProvider } from '../../services/medicineService/MedicineContext';
 
 const ThemeModeContext = createContext({
   isLightTheme: false,
@@ -175,7 +177,11 @@ export default function Providers({ children }) {
   return (
     <ThemeModeContext.Provider value={{ isLightTheme, toggleTheme }}>
       <ThemeProvider theme={muiTheme}>
-        {children}
+        <AuthProvider>
+          <MedicineProvider>
+            {children}
+          </MedicineProvider>
+        </AuthProvider>
       </ThemeProvider>
     </ThemeModeContext.Provider>
   );

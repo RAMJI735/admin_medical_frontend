@@ -1,11 +1,59 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { api } from '@/utils/api';
+
 export default function OverviewView() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get('/orders/stats/dashboard');
+        setData(res);
+      } catch (err) {
+        console.error('Error fetching dashboard stats:', err);
+        setError(err.message || 'Failed to load dashboard statistics.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-8 animate-shimmer">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">Dashboard Overview</h2>
+          <p className="text-zinc-400 text-sm mt-1">Live metrics and pharmaceutical operational analytics.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="glass rounded-2xl p-6 border border-border relative overflow-hidden">
+              <div className="h-4 w-24 bg-zinc-700/30 rounded animate-pulse" />
+              <div className="h-8 w-16 bg-zinc-700/30 rounded mt-4 animate-pulse" />
+              <div className="h-3 w-32 bg-zinc-700/30 rounded mt-2 animate-pulse" />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="glass rounded-2xl p-6 border border-border lg:col-span-2 h-80 animate-pulse bg-zinc-700/10" />
+          <div className="glass rounded-2xl p-6 border border-border h-80 animate-pulse bg-zinc-700/10" />
+        </div>
+      </div>
+    );
+  }
+
   const stats = [
     {
       title: 'Total Patients',
-      value: '14,820',
-      change: '+12.5% this month',
+      value: data?.totalPatients?.toLocaleString() || '0',
+      change: 'Active registered profiles',
       color: 'from-pink-500/20 to-purple-500/20',
       icon: (
         <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,9 +62,9 @@ export default function OverviewView() {
       ),
     },
     {
-      title: 'Active Pharmacists & Staff',
-      value: '38',
-      change: '+2 new onboarded',
+      title: 'Total Medicines',
+      value: data?.totalMedicines?.toLocaleString() || '0',
+      change: 'Available in repository',
       color: 'from-purple-500/20 to-indigo-500/20',
       icon: (
         <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,8 +74,8 @@ export default function OverviewView() {
     },
     {
       title: 'Verified Prescriptions',
-      value: '1,942',
-      change: '+45 Rx today',
+      value: data?.verifiedPrescriptions?.toLocaleString() || '0',
+      change: 'Audit approved orders',
       color: 'from-emerald-500/20 to-teal-500/20',
       icon: (
         <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,8 +85,8 @@ export default function OverviewView() {
     },
     {
       title: 'Pending Verifications',
-      value: '7',
-      change: '4 submitted today',
+      value: data?.pendingPrescriptions?.toLocaleString() || '0',
+      change: 'Awaiting review',
       color: 'from-amber-500/20 to-orange-500/20',
       icon: (
         <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,40 +96,29 @@ export default function OverviewView() {
     },
   ];
 
-  const activities = [
-    {
-      user: 'Ramesh Kumar',
-      action: 'uploaded doctor prescription for',
-      target: 'Order Verification',
-      time: '5 mins ago',
-      badge: 'Prescription Upload',
-      badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    },
-    {
-      user: 'Pharmacist Vivek',
-      action: 'approved and signed off prescription',
-      target: 'RX-9920 (Sunita)',
-      time: '20 mins ago',
-      badge: 'Prescription Audit',
-      badgeColor: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
-    },
-    {
-      user: 'Compliance Bot',
-      action: 'compiled regulatory narcotics ledger for',
-      target: 'State Drug Control',
-      time: '1 hour ago',
-      badge: 'System Audit',
-      badgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    },
-    {
-      user: 'Supplier Karan Pharma',
-      action: 'replenished warehouse stock levels for',
-      target: 'Novamox 500mg',
-      time: '3 hours ago',
-      badge: 'Stock Replenish',
-      badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    },
-  ];
+  const sales = data?.salesData || [0, 0, 0, 0, 0, 0];
+  const prescriptions = data?.prescriptionData || [0, 0, 0, 0, 0, 0];
+  const months = data?.months || ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'];
+  const activities = data?.activities || [];
+
+  const maxSales = Math.max(...sales, 1);
+  const maxPrescr = Math.max(...prescriptions, 1);
+
+  // Map value to Y coordinate (30 is top, 170 is bottom, viewBox height is 200)
+  const getSalesY = (val) => 170 - ((val / maxSales) * 130);
+  const getPrescrY = (val) => 170 - ((val / maxPrescr) * 130);
+
+  // X coordinates for the 6 points spanning across 500 width
+  const xCoords = [20, 110, 200, 290, 380, 470];
+
+  // Build lines
+  const salesPoints = sales.map((val, idx) => `${xCoords[idx]} ${getSalesY(val)}`);
+  const salesLinePath = `M ${salesPoints.join(' L ')}`;
+  const salesAreaPath = `${salesLinePath} L ${xCoords[xCoords.length - 1]} 200 L ${xCoords[0]} 200 Z`;
+
+  const prescrPoints = prescriptions.map((val, idx) => `${xCoords[idx]} ${getPrescrY(val)}`);
+  const prescrLinePath = `M ${prescrPoints.join(' L ')}`;
+  const prescrAreaPath = `${prescrLinePath} L ${xCoords[xCoords.length - 1]} 200 L ${xCoords[0]} 200 Z`;
 
   return (
     <div className="space-y-8 animate-shimmer">
@@ -113,7 +150,7 @@ export default function OverviewView() {
             <div className="mt-4">
               <div className="text-3xl font-bold text-foreground tracking-tight">{stat.value}</div>
               <p className="text-xs text-zinc-500 mt-2 font-medium flex items-center gap-1.5">
-                <span className="text-emerald-500">↑</span>
+                <span className="text-emerald-500">✓</span>
                 {stat.change}
               </p>
             </div>
@@ -136,7 +173,7 @@ export default function OverviewView() {
                 Completed Orders
               </div>
               <div className="flex items-center gap-1.5 text-zinc-400">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-600" />
+                <span className="w-2.5 h-2.5 rounded-full bg-purple-650" />
                 Prescriptions Logged
               </div>
             </div>
@@ -152,20 +189,20 @@ export default function OverviewView() {
 
               {/* Purple area under Active Profiles */}
               <path
-                d="M0 160 Q100 130 200 100 T400 60 T500 40 L500 200 L0 200 Z"
+                d={prescrAreaPath}
                 fill="url(#purpleGrad)"
                 opacity="0.1"
               />
               {/* Pink area under Successful Couples */}
               <path
-                d="M0 180 Q100 160 200 130 T400 90 T500 70 L500 200 L0 200 Z"
+                d={salesAreaPath}
                 fill="url(#pinkGrad)"
                 opacity="0.15"
               />
 
               {/* Purple Line */}
               <path
-                d="M0 160 Q100 130 200 100 T400 60 T500 40"
+                d={prescrLinePath}
                 fill="none"
                 stroke="#9333ea"
                 strokeWidth="3.5"
@@ -173,7 +210,7 @@ export default function OverviewView() {
               />
               {/* Pink Line */}
               <path
-                d="M0 180 Q100 160 200 130 T400 90 T500 70"
+                d={salesLinePath}
                 fill="none"
                 stroke="#ec4899"
                 strokeWidth="3.5"
@@ -194,13 +231,10 @@ export default function OverviewView() {
             </svg>
 
             {/* Bottom X-Axis Labels */}
-            <div className="absolute bottom-[-24px] inset-x-0 flex justify-between text-[10px] text-zinc-500 font-semibold px-2">
-              <span>JAN</span>
-              <span>FEB</span>
-              <span>MAR</span>
-              <span>APR</span>
-              <span>MAY</span>
-              <span>JUN</span>
+            <div className="absolute bottom-[-24px] inset-x-0 flex justify-between text-[10px] text-zinc-500 font-semibold px-4">
+              {months.map((m, idx) => (
+                <span key={idx}>{m}</span>
+              ))}
             </div>
           </div>
         </div>
@@ -212,7 +246,7 @@ export default function OverviewView() {
             <p className="text-xs text-zinc-400 mt-0.5">Real-time pharmacy dashboard updates.</p>
           </div>
 
-          <div className="space-y-5 flex-1 mt-6">
+          <div className="space-y-5 flex-1 mt-6 overflow-y-auto max-h-[280px] pr-1">
             {activities.map((act, i) => (
               <div key={i} className="flex gap-4 items-start group">
                 <div className="w-1.5 h-1.5 rounded-full bg-pink-500 mt-2 ring-4 ring-pink-500/10 group-hover:scale-125 transition-transform" />

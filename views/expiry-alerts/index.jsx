@@ -1,19 +1,47 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
   Paper,
   Avatar,
-  Button
+  Button,
+  Snackbar,
+  Alert
 } from '@mui/material';
+import { useMedicine } from '../../services/medicineService/MedicineContext';
 
 function ExpiryAlerts({
-  medicines = [],
-  handleDeleteMedicine,
-  deleteConfirmId
+  medicines = []
 }) {
+  const { deleteMedicine } = useMedicine();
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  const showToast = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleDeleteMedicine = async (id, name) => {
+    if (deleteConfirmId !== id) {
+      setDeleteConfirmId(id);
+      setTimeout(() => setDeleteConfirmId(prev => prev === id ? null : prev), 3000);
+      return;
+    }
+    try {
+      await deleteMedicine(id);
+      showToast(`${name} deleted successfully!`);
+      setDeleteConfirmId(null);
+    } catch (err) {
+      showToast('Failed to delete medicine: ' + err.message, 'error');
+    }
+  };
+
   const alertedMeds = medicines.map((m) => {
     if (m.expiry === 'N/A') return null;
     const expiryDate = new Date(m.expiry);
@@ -92,6 +120,17 @@ function ExpiryAlerts({
 
   return (
     <Paper className="glass" sx={{ p: 3 }}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%', borderRadius: '12px' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
       <Box sx={{ mb: 3 }}>
         <Typography variant="h6" sx={{ fontWeight: 700, color: '#ef4444' }}>
           Critical Expiry Alerts

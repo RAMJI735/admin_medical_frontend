@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -11,6 +11,7 @@ import {
   MenuItem,
   Button
 } from '@mui/material';
+import { useMedicine } from '../../services/medicineService/MedicineContext';
 
 function AddMedicine({
   newMed = {},
@@ -18,6 +19,22 @@ function AddMedicine({
   categories = [],
   handleAddMedicineSubmit
 }) {
+  const { brands, loadBrands } = useMedicine();
+
+  // Load brands if not loaded
+  useEffect(() => {
+    if (brands.length === 0) {
+      loadBrands().catch(err => console.error("Error loading brands", err));
+    }
+  }, [brands]);
+
+  // Set default brand if not set
+  useEffect(() => {
+    if (brands.length > 0 && !newMed.brand) {
+      setNewMed(prev => ({ ...prev, brand: brands[0]._id }));
+    }
+  }, [brands, newMed.brand, setNewMed]);
+
   return (
     <Paper className="glass" sx={{ p: 3, maxWidth: 640 }}>
       <Box sx={{ mb: 3 }}>
@@ -75,13 +92,18 @@ function AddMedicine({
             >
               Brand / Manufacturer *
             </Typography>
-            <TextField
+            <Select
               fullWidth
-              placeholder="e.g. Abbott Labs"
               value={newMed.brand || ''}
               onChange={(e) => setNewMed({ ...newMed, brand: e.target.value })}
               required
-            />
+            >
+              {brands.map((b) => (
+                <MenuItem key={b._id} value={b._id}>
+                  {b.brandName}
+                </MenuItem>
+              ))}
+            </Select>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Typography

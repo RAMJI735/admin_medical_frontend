@@ -31,16 +31,6 @@
         "link": "/dashboard/medicines/all-medicines"
       },
       {
-        "id": "add-medicine",
-        "label": "Add Medicine",
-        "roles": [
-          "Super Admin",
-          "Matchmaker",
-          "Support"
-        ],
-        "link": "/dashboard/medicines/add-medicine"
-      },
-      {
         "id": "categories",
         "label": "Categories",
         "roles": [

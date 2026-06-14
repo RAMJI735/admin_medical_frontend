@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -13,19 +13,80 @@ import {
   Paper,
   TextField,
   Button,
-  Chip
+  Chip,
+  Snackbar,
+  Alert
 } from '@mui/material';
+import { useMedicine } from '../../services/medicineService/MedicineContext';
+import AddMedicineModal from './AddMedicineModal';
+import EditMedicineModal from './EditMedicineModal';
 
 function AllMedicines({
   filteredMedicines = [],
   searchQuery,
-  setSearchQuery,
-  setEditMedicine,
-  handleDeleteMedicine,
-  deleteConfirmId
+  setSearchQuery
 }) {
+  const { deleteMedicine } = useMedicine();
+  const [addOpen, setAddOpen] = useState(false);
+  const [editMedicine, setEditMedicine] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  const showToast = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleDeleteMedicine = async (id, name) => {
+    if (deleteConfirmId !== id) {
+      setDeleteConfirmId(id);
+      setTimeout(() => setDeleteConfirmId(prev => prev === id ? null : prev), 3000);
+      return;
+    }
+    try {
+      await deleteMedicine(id);
+      showToast(`${name} deleted successfully!`);
+      setDeleteConfirmId(null);
+    } catch (err) {
+      showToast('Failed to delete medicine: ' + err.message, 'error');
+    }
+  };
+
+  const handleSaved = (message, severity = 'success') => {
+    showToast(message, severity);
+  };
+
   return (
     <Paper className="glass" sx={{ p: 3 }}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%', borderRadius: '12px' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      {/* Add Medicine Modal */}
+      <AddMedicineModal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onSaved={handleSaved}
+      />
+
+      {/* Edit Medicine Modal */}
+      <EditMedicineModal
+        open={!!editMedicine}
+        medicine={editMedicine}
+        onClose={() => setEditMedicine(null)}
+        onSaved={handleSaved}
+      />
+
       <Box
         sx={{
           display: 'flex',
@@ -44,13 +105,29 @@ function AllMedicines({
             Catalog directory of registered medical formulations and pills.
           </Typography>
         </Box>
-        <TextField
-          size="small"
-          placeholder="Search name, brand, SKU..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ width: { xs: '100%', sm: 260 } }}
-        />
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', width: { xs: '100%', sm: 'auto' } }}>
+          <TextField
+            size="small"
+            placeholder="Search name, brand, SKU..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ width: { xs: '100%', sm: 260 } }}
+          />
+          <Button
+            variant="contained"
+            onClick={() => setAddOpen(true)}
+            sx={{
+              background: 'linear-gradient(to right, #ec4899, #9333ea)',
+              color: 'white',
+              px: 3,
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              '&:hover': { background: 'linear-gradient(to right, #db2777, #7e22ce)' },
+            }}
+          >
+            Add Medicine
+          </Button>
+        </Box>
       </Box>
 
       <TableContainer>

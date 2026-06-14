@@ -10,20 +10,21 @@ import LogoutIcon from "@mui/icons-material/Logout";
 
 import navbarItem from "@/data/navigation.json";
 import { useThemeMode } from "@/app/providers";
+import { useAuth } from "../../services/AuthService/AuthContext";
 
 export const Silder = () => {
     const pathname = usePathname();
     const router = useRouter();
     const { isLightTheme } = useThemeMode();
+    const { isAuthenticated, loading, logout } = useAuth();
 
     const [openMenus, setOpenMenus] = useState({});
 
     useEffect(() => {
-        const loggedIn = localStorage.getItem('isLoggedIn');
-        if (loggedIn !== 'true') {
+        if (!loading && !isAuthenticated) {
             router.push('/');
         }
-    }, [router]);
+    }, [isAuthenticated, loading, router]);
 
     const handleMenuClick = (menuId) => {
         setOpenMenus((prev) => ({
@@ -33,8 +34,7 @@ export const Silder = () => {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('currentUser');
+        logout();
         router.push('/');
     };
 
