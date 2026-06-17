@@ -5,6 +5,22 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+// Add a request interceptor to attach bearer tokens automatically
+api.interceptors.request.use(
+  (config) => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Add a response interceptor to return data directly
 api.interceptors.response.use(
   (response) => {

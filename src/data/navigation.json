@@ -73,6 +73,17 @@
     ]
   },
   {
+    "id": "banner",
+    "label": "Banner",
+    "icon": "banner",
+    "roles": [
+      "Super Admin",
+      "Matchmaker",
+      "Support"
+    ],
+    "link": "/dashboard/banner"
+  },
+  {
     "id": "orders-parent",
     "label": "Orders",
     "icon": "orders",

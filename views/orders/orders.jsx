@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -15,10 +15,13 @@ import {
   Chip,
   Snackbar,
   Alert,
+  CircularProgress,
 } from '@mui/material';
+import { useOrder } from '../../services/orderService/OrderContext';
 
 export default function OrdersView({ activeTab }) {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const { orders, loading, loadOrders, updateOrderStatus, cancelOrder } = useOrder();
 
   const showToast = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });
@@ -28,14 +31,17 @@ export default function OrdersView({ activeTab }) {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // State for orders log
-  const [orders, setOrders] = useState([
-    { id: 'ORD-1092', customer: 'Ramesh Kumar', items: 'Paracetamol x 2, Cough Syrup x 1', total: '₹195.00', date: '2026-06-02 21:10', status: 'New Orders', rxRequired: true, rxVerified: false },
-    { id: 'ORD-1091', customer: 'Sunita Sharma', items: 'Amoxicillin x 1, Glycomet x 3', total: '₹375.00', date: '2026-06-02 18:35', status: 'Processing Orders', rxRequired: true, rxVerified: true },
-    { id: 'ORD-1090', customer: 'Vijay Mallya', items: 'Lipvas 10mg x 2', total: '₹280.00', date: '2026-06-01 14:20', status: 'Shipped Orders', rxRequired: false, rxVerified: false },
-    { id: 'ORD-1089', customer: 'Anjali Gupta', items: 'Brufen 400mg x 4', total: '₹152.00', date: '2026-05-30', status: 'Delivered Orders', rxRequired: false, rxVerified: false },
-    { id: 'ORD-1088', customer: 'Vikram Singh', items: 'Atorvastatin x 1', total: '₹140.00', date: '2026-05-29', status: 'Cancelled Orders', rxRequired: false, rxVerified: false }
-  ]);
+  // Fetch orders on mount
+  useEffect(() => {
+    loadOrders().catch((err) => {
+      showToast('Failed to load orders: ' + err.message, 'error');
+    });
+  }, []);
+
+  const filteredOrders = orders.filter((o) => {
+    if (!o.status) return false;
+    return o.status.toLowerCase().replace(/\s+/g, '-') === activeTab;
+  });
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -52,33 +58,52 @@ export default function OrdersView({ activeTab }) {
 
       <Paper className="glass" sx={{ p: 3 }}>
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)', textTransform: 'capitalize' }}>{activeTab.replace('-', ' ')}</Typography>
-          <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Audit orders, manage drug dispensaries, and track courier logistics.</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)', textTransform: 'capitalize' }}>
+            {activeTab.replace('-', ' ')}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>
+            Audit orders, manage drug dispensaries, and track courier logistics.
+          </Typography>
         </Box>
 
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Order ID</TableCell>
-                <TableCell>Customer Name</TableCell>
-                <TableCell>Formulation Items</TableCell>
-                <TableCell>Total Amount</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Rx Required</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {orders
-                .filter(o => o.status.toLowerCase().replace(' ', '-') === activeTab)
-                .map((order) => (
-                  <TableRow key={order.id} sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.02)' } }}>
-                    <TableCell sx={{ fontWeight: 700, color: 'var(--foreground)' }}>{order.id}</TableCell>
-                    <TableCell sx={{ color: 'var(--foreground)', fontWeight: 600 }}>{order.customer}</TableCell>
-                    <TableCell sx={{ color: '#a1a1aa' }}>{order.items}</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'white' }}>{order.total}</TableCell>
-                    <TableCell sx={{ color: '#71717a', fontSize: '10px' }}>{order.date}</TableCell>
+        {loading && orders.length === 0 ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <CircularProgress size={36} sx={{ color: '#ec4899' }} />
+          </Box>
+        ) : (
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Order ID</TableCell>
+                  <TableCell>Customer Name</TableCell>
+                  <TableCell>Formulation Items</TableCell>
+                  <TableCell>Total Amount</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Rx Required</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredOrders.map((order) => (
+                  <TableRow key={order._id} sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.02)' } }}>
+                    <TableCell sx={{ fontWeight: 700, color: 'var(--foreground)' }}>
+                      {`ORD-${order._id.slice(-6).toUpperCase()}`}
+                    </TableCell>
+                    <TableCell sx={{ color: 'var(--foreground)', fontWeight: 600 }}>
+                      {order.userId?.name || 'Guest User'}
+                    </TableCell>
+                    <TableCell sx={{ color: '#a1a1aa', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {order.items
+                        .map((item) => `${item.medicineId?.medicineName || 'Medicine'} x ${item.quantity}`)
+                        .join(', ') || 'No items'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: 'white' }}>
+                      {`₹${(order.totalAmount || 0).toFixed(2)}`}
+                    </TableCell>
+                    <TableCell sx={{ color: '#71717a', fontSize: '10px' }}>
+                      {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}
+                    </TableCell>
                     <TableCell>
                       {order.rxRequired ? (
                         <Chip
@@ -91,11 +116,13 @@ export default function OrdersView({ activeTab }) {
                             border: '1px solid',
                             bgcolor: order.rxVerified ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)',
                             borderColor: order.rxVerified ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                            color: order.rxVerified ? '#10b981' : '#f59e0b'
+                            color: order.rxVerified ? '#10b981' : '#f59e0b',
                           }}
                         />
                       ) : (
-                        <Typography variant="caption" sx={{ color: '#71717a' }}>None</Typography>
+                        <Typography variant="caption" sx={{ color: '#71717a' }}>
+                          None
+                        </Typography>
                       )}
                     </TableCell>
                     <TableCell align="right">
@@ -105,12 +132,16 @@ export default function OrdersView({ activeTab }) {
                             <Button
                               variant="contained"
                               size="small"
-                              onClick={() => {
+                              onClick={async () => {
                                 if (order.rxRequired && !order.rxVerified) {
                                   showToast('Cannot approve. Doctor prescription verification pending.', 'error');
                                 } else {
-                                  setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Processing Orders' } : o));
-                                  showToast(`Order ${order.id} moved to Processing`);
+                                  try {
+                                    await updateOrderStatus(order._id, 'Processing Orders');
+                                    showToast(`Order approved and moved to Processing`);
+                                  } catch (err) {
+                                    showToast('Failed to approve order: ' + err.message, 'error');
+                                  }
                                 }
                               }}
                               sx={{ backgroundColor: '#ec4899', fontSize: '9px', '&:hover': { backgroundColor: '#db2777' } }}
@@ -120,11 +151,20 @@ export default function OrdersView({ activeTab }) {
                             <Button
                               variant="outlined"
                               size="small"
-                              onClick={() => {
-                                setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Cancelled Orders' } : o));
-                                showToast(`Order ${order.id} has been cancelled.`);
+                              onClick={async () => {
+                                try {
+                                  await cancelOrder(order._id);
+                                  showToast(`Order has been cancelled.`);
+                                } catch (err) {
+                                  showToast('Failed to cancel order: ' + err.message, 'error');
+                                }
                               }}
-                              sx={{ borderColor: 'var(--card-border)', color: '#a1a1aa', fontSize: '9px', '&:hover': { color: '#ef4444', borderColor: '#ef4444' } }}
+                              sx={{
+                                borderColor: 'var(--card-border)',
+                                color: '#a1a1aa',
+                                fontSize: '9px',
+                                '&:hover': { color: '#ef4444', borderColor: '#ef4444' },
+                              }}
                             >
                               Cancel
                             </Button>
@@ -134,11 +174,15 @@ export default function OrdersView({ activeTab }) {
                           <Button
                             variant="contained"
                             size="small"
-                            onClick={() => {
-                              setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Shipped Orders' } : o));
-                              showToast(`Order ${order.id} has been shipped via Delivery Partner.`);
+                            onClick={async () => {
+                              try {
+                                await updateOrderStatus(order._id, 'Shipped Orders');
+                                showToast(`Order has been shipped via Delivery Partner.`);
+                              } catch (err) {
+                                showToast('Failed to dispatch order: ' + err.message, 'error');
+                              }
                             }}
-                            sx={{ backgroundColor: '#ec4899' }}
+                            sx={{ backgroundColor: '#ec4899', fontSize: '9px', '&:hover': { backgroundColor: '#db2777' } }}
                           >
                             Dispatch Courier
                           </Button>
@@ -148,29 +192,39 @@ export default function OrdersView({ activeTab }) {
                             variant="contained"
                             size="small"
                             color="success"
-                            onClick={() => {
-                              setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Delivered Orders' } : o));
-                              showToast(`Order ${order.id} marked as successfully delivered.`);
+                            onClick={async () => {
+                              try {
+                                await updateOrderStatus(order._id, 'Delivered Orders');
+                                showToast(`Order marked as successfully delivered.`);
+                              } catch (err) {
+                                showToast('Failed to deliver order: ' + err.message, 'error');
+                              }
                             }}
+                            sx={{ fontSize: '9px' }}
                           >
                             Mark Delivered
                           </Button>
                         )}
                         {['delivered-orders', 'cancelled-orders'].includes(activeTab) && (
-                          <Typography variant="caption" sx={{ color: '#71717a', fontStyle: 'italic' }}>Archived</Typography>
+                          <Typography variant="caption" sx={{ color: '#71717a', fontStyle: 'italic' }}>
+                            Archived
+                          </Typography>
                         )}
                       </Box>
                     </TableCell>
                   </TableRow>
-              ))}
-              {orders.filter(o => o.status.toLowerCase().replace(' ', '-') === activeTab).length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4, color: '#71717a', fontStyle: 'italic' }}>No orders present in this log queue.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                ))}
+                {filteredOrders.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4, color: '#71717a', fontStyle: 'italic' }}>
+                      No orders present in this log queue.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </Paper>
     </Box>
   );
