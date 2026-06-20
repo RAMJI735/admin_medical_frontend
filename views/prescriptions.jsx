@@ -77,7 +77,7 @@ export default function PrescriptionsView({ activeTab }) {
 
           <Grid container spacing={3}>
             {/* Left Queue List */}
-            <Grid item xs={12} lg={4}>
+            <Grid xs={12} lg={4}>
               <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', mb: 2, display: 'block' }}>Verification Queue</Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {prescriptions
@@ -105,7 +105,7 @@ export default function PrescriptionsView({ activeTab }) {
             </Grid>
 
             {/* Right Split Prescription Inspector */}
-            <Grid item xs={12} lg={8}>
+            <Grid xs={12} lg={8}>
               {prescriptions.filter(rx => rx.status === 'Pending Verification').map((rx) => (
                 <Paper key={rx.id} className="glass" sx={{ p: 3, position: 'relative', overflow: 'hidden' }}>
                   <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, #ec4899, #9333ea)' }} />
@@ -120,7 +120,7 @@ export default function PrescriptionsView({ activeTab }) {
 
                   <Grid container spacing={3}>
                     {/* Visual RX Doctor Note */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                       <Box sx={{ border: '1px solid var(--card-border)', borderRadius: '16px', bgcolor: 'rgba(9, 9, 11, 0.4)', p: 3, fontFamily: 'monospace', fontSize: '11px', color: '#a1a1aa', position: 'relative', minHeight: 220 }}>
                         <Box sx={{ position: 'absolute', top: 12, right: 12, fontSize: '9px', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', px: 1, py: 0.5, borderRadius: '4px' }}>RX NOTE</Box>
                         <Typography variant="caption" sx={{ fontWeight: 750, color: 'var(--foreground)', fontFamily: 'monospace', display: 'block', mb: 0.5 }}>{rx.doctor}</Typography>
@@ -141,7 +141,7 @@ export default function PrescriptionsView({ activeTab }) {
                     </Grid>
 
                     {/* Pharmacist Checklist Form */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                       <Typography variant="caption" sx={{ fontWeight: 700, color: 'var(--foreground)', textTransform: 'uppercase', mb: 2, display: 'block' }}>Pharmacist Audit Checklist</Typography>
                       
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
@@ -183,7 +183,7 @@ export default function PrescriptionsView({ activeTab }) {
                       </Box>
 
                       <Grid container spacing={2}>
-                        <Grid item xs={6}>
+                        <Grid xs={6}>
                           <Button
                             fullWidth
                             variant="contained"
@@ -199,7 +199,7 @@ export default function PrescriptionsView({ activeTab }) {
                             Approve
                           </Button>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid xs={6}>
                           <Button
                             fullWidth
                             variant="contained"

@@ -59,7 +59,165 @@ export default function StoreSettingsView({ activeTab }) {
       showToast('Failed to save credentials: ' + err.message, 'error');
     }
   };
+  const [shopName, setShopName] = useState('');
+  const [licenseNumber, setLicenseNumber] = useState('');
+  const [pharmacistName, setPharmacistName] = useState('');
+  const [storeAddress, setStoreAddress] = useState('');
+  const [loadingStore, setLoadingStore] = useState(false);
 
+  useEffect(() => {
+    if (activeTab === 'store-information') {
+      const fetchStoreInfo = async () => {
+        setLoadingStore(true);
+        try {
+          const data = await settingsService.getSetting('store-information');
+          if (data && data.value) {
+            setShopName(data.value.shopName || '');
+            setLicenseNumber(data.value.licenseNumber || '');
+            setPharmacistName(data.value.pharmacistName || '');
+            setStoreAddress(data.value.storeAddress || '');
+          }
+        } catch (err) {
+          showToast('Failed to load store information: ' + err.message, 'error');
+        } finally {
+          setLoadingStore(false);
+        }
+      };
+      fetchStoreInfo();
+    }
+  }, [activeTab]);
+
+  const handleStoreSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await settingsService.updateSetting('store-information', {
+        shopName,
+        licenseNumber,
+        pharmacistName,
+        storeAddress
+      });
+      showToast('Store parameters saved.');
+    } catch (err) {
+      showToast('Failed to save store details: ' + err.message, 'error');
+    }
+  };
+
+  // GST state & effects
+  const [gstinNumber, setGstinNumber] = useState('29AAAAA0000A1Z5');
+  const [defaultGstBracket, setDefaultGstBracket] = useState('12%');
+  const [loadingGst, setLoadingGst] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'gst-settings') {
+      const fetchGst = async () => {
+        setLoadingGst(true);
+        try {
+          const data = await settingsService.getSetting('gst-settings');
+          if (data && data.value) {
+            setGstinNumber(data.value.gstinNumber || '29AAAAA0000A1Z5');
+            setDefaultGstBracket(data.value.defaultGstBracket || '12%');
+          }
+        } catch (err) {
+          showToast('Failed to load GST settings: ' + err.message, 'error');
+        } finally {
+          setLoadingGst(false);
+        }
+      };
+      fetchGst();
+    }
+  }, [activeTab]);
+
+  const handleGstSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await settingsService.updateSetting('gst-settings', {
+        gstinNumber,
+        defaultGstBracket
+      });
+      showToast('GST config parameters successfully synchronized.');
+    } catch (err) {
+      showToast('Failed to save GST settings: ' + err.message, 'error');
+    }
+  };
+
+  // Email state & effects
+  const [smtpHost, setSmtpHost] = useState('smtp.mailgun.org');
+  const [smtpPort, setSmtpPort] = useState('587');
+  const [authorizedSender, setAuthorizedSender] = useState('billing@medrxpharmacy.com');
+  const [loadingEmail, setLoadingEmail] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'email-settings') {
+      const fetchEmail = async () => {
+        setLoadingEmail(true);
+        try {
+          const data = await settingsService.getSetting('email-settings');
+          if (data && data.value) {
+            setSmtpHost(data.value.smtpHost || 'smtp.mailgun.org');
+            setSmtpPort(data.value.smtpPort || '587');
+            setAuthorizedSender(data.value.authorizedSender || 'billing@medrxpharmacy.com');
+          }
+        } catch (err) {
+          showToast('Failed to load SMTP settings: ' + err.message, 'error');
+        } finally {
+          setLoadingEmail(false);
+        }
+      };
+      fetchEmail();
+    }
+  }, [activeTab]);
+
+  const handleEmailSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await settingsService.updateSetting('email-settings', {
+        smtpHost,
+        smtpPort,
+        authorizedSender
+      });
+      showToast('SMTP settings saved.');
+    } catch (err) {
+      showToast('Failed to save SMTP settings: ' + err.message, 'error');
+    }
+  };
+
+  // SMS state & effects
+  const [twilioAccountSid, setTwilioAccountSid] = useState('AC82910398291039829');
+  const [twilioAuthToken, setTwilioAuthToken] = useState('secret_token_placeholder');
+  const [loadingSms, setLoadingSms] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'sms-settings') {
+      const fetchSms = async () => {
+        setLoadingSms(true);
+        try {
+          const data = await settingsService.getSetting('sms-settings');
+          if (data && data.value) {
+            setTwilioAccountSid(data.value.twilioAccountSid || 'AC82910398291039829');
+            setTwilioAuthToken(data.value.twilioAuthToken || 'secret_token_placeholder');
+          }
+        } catch (err) {
+          showToast('Failed to load Twilio settings: ' + err.message, 'error');
+        } finally {
+          setLoadingSms(false);
+        }
+      };
+      fetchSms();
+    }
+  }, [activeTab]);
+
+  const handleSmsSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await settingsService.updateSetting('sms-settings', {
+        twilioAccountSid,
+        twilioAuthToken
+      });
+      showToast('SMS Gateway settings updated.');
+    } catch (err) {
+      showToast('Failed to save SMS settings: ' + err.message, 'error');
+    }
+  };
   const handleSnackbarClose = () => {
     setSnackbar({ ...snackbar, open: false });
   };
@@ -85,33 +243,57 @@ export default function StoreSettingsView({ activeTab }) {
             <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Configure physical store parameters, druggist licenses, and legal address indices.</Typography>
           </Box>
 
-          <Box component="form" onSubmit={(e) => { e.preventDefault(); showToast('Store parameters saved.'); }} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Box>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Registered Pharmacy Shop Name</Typography>
-              <TextField fullWidth defaultValue="MedRx Wellness Pharmacy" />
+          {loadingStore ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress size={28} sx={{ color: '#ec4899' }} />
             </Box>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Drug Retail License</Typography>
-                <TextField fullWidth defaultValue="DL-38910-RX" />
+          ) : (
+            <Box component="form" onSubmit={handleStoreSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Registered Pharmacy Shop Name</Typography>
+                <TextField 
+                  fullWidth 
+                  value={shopName || ''} 
+                  onChange={(e) => setShopName(e.target.value)} 
+                />
+              </Box>
+              <Grid container spacing={2}>
+                <Grid xs={6}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Drug Retail License</Typography>
+                  <TextField 
+                    fullWidth 
+                    value={licenseNumber || ''} 
+                    onChange={(e) => setLicenseNumber(e.target.value)} 
+                  />
+                </Grid>
+                <Grid xs={6}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Registered Pharmacist Name</Typography>
+                  <TextField 
+                    fullWidth 
+                    value={pharmacistName || ''} 
+                    onChange={(e) => setPharmacistName(e.target.value)} 
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Registered Pharmacist Name</Typography>
-                <TextField fullWidth defaultValue="Dr. Vivek Malhotra (D.Pharm)" />
-              </Grid>
-            </Grid>
-            <Box>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Store Address</Typography>
-              <TextField fullWidth multiline rows={3} defaultValue="Plot 24, Outer Ring Road, Sector 4, Bangalore, Karnataka — 560001" />
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Store Address</Typography>
+                <TextField 
+                  fullWidth 
+                  multiline 
+                  rows={3} 
+                  value={storeAddress || ''} 
+                  onChange={(e) => setStoreAddress(e.target.value)} 
+                />
+              </Box>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ background: 'linear-gradient(to right, #ec4899, #9333ea)', color: 'white' }}
+              >
+                Save Information
+              </Button>
             </Box>
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ background: 'linear-gradient(to right, #ec4899, #9333ea)', color: 'white' }}
-            >
-              Save Information
-            </Button>
-          </Box>
+          )}
         </Paper>
       )}
 
@@ -123,30 +305,44 @@ export default function StoreSettingsView({ activeTab }) {
             <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Configure CGST, SGST, and IGST tax rate brackets for medical formulations.</Typography>
           </Box>
 
-          <Box component="form" onSubmit={(e) => { e.preventDefault(); showToast('GST config parameters successfully synchronized.'); }} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>GSTIN Number</Typography>
-                <TextField fullWidth defaultValue="29AAAAA0000A1Z5" />
+          {loadingGst ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress size={28} sx={{ color: '#ec4899' }} />
+            </Box>
+          ) : (
+            <Box component="form" onSubmit={handleGstSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Grid container spacing={2}>
+                <Grid xs={6}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>GSTIN Number</Typography>
+                  <TextField 
+                    fullWidth 
+                    value={gstinNumber || ''} 
+                    onChange={(e) => setGstinNumber(e.target.value)} 
+                  />
+                </Grid>
+                <Grid xs={6}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Default GST Bracket</Typography>
+                  <Select 
+                    fullWidth 
+                    value={defaultGstBracket || '12%'} 
+                    onChange={(e) => setDefaultGstBracket(e.target.value)}
+                  >
+                    <MenuItem value="12%">12% GST (Standard Formulations)</MenuItem>
+                    <MenuItem value="18%">18% GST (Medical Instruments)</MenuItem>
+                    <MenuItem value="5%">5% GST (Life Saving Drugs)</MenuItem>
+                    <MenuItem value="0%">0% Exempted</MenuItem>
+                  </Select>
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Default GST Bracket</Typography>
-                <Select fullWidth defaultValue="12%">
-                  <MenuItem value="12%">12% GST (Standard Formulations)</MenuItem>
-                  <MenuItem value="18%">18% GST (Medical Instruments)</MenuItem>
-                  <MenuItem value="5%">5% GST (Life Saving Drugs)</MenuItem>
-                  <MenuItem value="0%">0% Exempted</MenuItem>
-                </Select>
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ background: 'linear-gradient(to right, #ec4899, #9333ea)', color: 'white' }}
-            >
-              Update Taxes
-            </Button>
-          </Box>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ background: 'linear-gradient(to right, #ec4899, #9333ea)', color: 'white' }}
+              >
+                Update Taxes
+              </Button>
+            </Box>
+          )}
         </Paper>
       )}
 
@@ -168,7 +364,7 @@ export default function StoreSettingsView({ activeTab }) {
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Razorpay Key ID</Typography>
                 <TextField 
                   fullWidth 
-                  value={razorpayKeyId} 
+                  value={razorpayKeyId || ''} 
                   onChange={(e) => setRazorpayKeyId(e.target.value)} 
                 />
               </Box>
@@ -177,7 +373,7 @@ export default function StoreSettingsView({ activeTab }) {
                 <TextField 
                   fullWidth 
                   type="password" 
-                  value={razorpayKeySecret} 
+                  value={razorpayKeySecret || ''} 
                   onChange={(e) => setRazorpayKeySecret(e.target.value)} 
                 />
               </Box>
@@ -201,29 +397,47 @@ export default function StoreSettingsView({ activeTab }) {
             <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Configure SMTP servers to dispatch prescription notifications and purchase invoice PDFs.</Typography>
           </Box>
 
-          <Box component="form" onSubmit={(e) => { e.preventDefault(); showToast('SMTP settings saved.'); }} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={8}>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>SMTP Host</Typography>
-                <TextField fullWidth defaultValue="smtp.mailgun.org" />
-              </Grid>
-              <Grid item xs={4}>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>SMTP Port</Typography>
-                <TextField fullWidth defaultValue="587" />
-              </Grid>
-            </Grid>
-            <Box>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Authorized Sender Address</Typography>
-              <TextField fullWidth defaultValue="billing@medrxpharmacy.com" />
+          {loadingEmail ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress size={28} sx={{ color: '#ec4899' }} />
             </Box>
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ background: 'linear-gradient(to right, #ec4899, #9333ea)', color: 'white' }}
-            >
-              Save Email Config
-            </Button>
-          </Box>
+          ) : (
+            <Box component="form" onSubmit={handleEmailSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Grid container spacing={2}>
+                <Grid xs={8}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>SMTP Host</Typography>
+                  <TextField 
+                    fullWidth 
+                    value={smtpHost || ''} 
+                    onChange={(e) => setSmtpHost(e.target.value)} 
+                  />
+                </Grid>
+                <Grid xs={4}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>SMTP Port</Typography>
+                  <TextField 
+                    fullWidth 
+                    value={smtpPort || ''} 
+                    onChange={(e) => setSmtpPort(e.target.value)} 
+                  />
+                </Grid>
+              </Grid>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Authorized Sender Address</Typography>
+                <TextField 
+                  fullWidth 
+                  value={authorizedSender || ''} 
+                  onChange={(e) => setAuthorizedSender(e.target.value)} 
+                />
+              </Box>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ background: 'linear-gradient(to right, #ec4899, #9333ea)', color: 'white' }}
+              >
+                Save Email Config
+              </Button>
+            </Box>
+          )}
         </Paper>
       )}
 
@@ -235,32 +449,47 @@ export default function StoreSettingsView({ activeTab }) {
             <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Connect Twilio / SMS portals to push shipping tracking links and OTP logins.</Typography>
           </Box>
 
-          <Box component="form" onSubmit={(e) => { e.preventDefault(); showToast('SMS Gateway settings updated.'); }} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Box>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Twilio Account SID</Typography>
-              <TextField fullWidth defaultValue="AC82910398291039829" />
+          {loadingSms ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress size={28} sx={{ color: '#ec4899' }} />
             </Box>
-            <Box>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Twilio Auth Token</Typography>
-              <TextField fullWidth type="password" defaultValue="secret_token_placeholder" />
+          ) : (
+            <Box component="form" onSubmit={handleSmsSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Twilio Account SID</Typography>
+                <TextField 
+                  fullWidth 
+                  value={twilioAccountSid || ''} 
+                  onChange={(e) => setTwilioAccountSid(e.target.value)} 
+                />
+              </Box>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Twilio Auth Token</Typography>
+                <TextField 
+                  fullWidth 
+                  type="password" 
+                  value={twilioAuthToken || ''} 
+                  onChange={(e) => setTwilioAuthToken(e.target.value)} 
+                />
+              </Box>
+              <Box sx={{ display: 'flex', gap: 2, pt: 1 }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{ background: 'linear-gradient(to right, #ec4899, #9333ea)', color: 'white' }}
+                >
+                  Save Twilio Token
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => showToast('Test SMS dispatched to +91 99000-88877 via Twilio.')}
+                  sx={{ borderColor: 'var(--card-border)', color: '#a1a1aa', '&:hover': { color: 'white', borderColor: '#a1a1aa' } }}
+                >
+                  Send Test SMS
+                </Button>
+              </Box>
             </Box>
-            <Box sx={{ display: 'flex', gap: 2, pt: 1 }}>
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{ background: 'linear-gradient(to right, #ec4899, #9333ea)', color: 'white' }}
-              >
-                Save Twilio Token
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => showToast('Test SMS dispatched to +91 99000-88877 via Twilio.')}
-                sx={{ borderColor: 'var(--card-border)', color: '#a1a1aa', '&:hover': { color: 'white', borderColor: '#a1a1aa' } }}
-              >
-                Send Test SMS
-              </Button>
-            </Box>
-          </Box>
+          )}
         </Paper>
       )}
     </Box>

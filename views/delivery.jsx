@@ -47,26 +47,26 @@ export default function DeliveryView({ activeTab }) {
             <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>Courier Delivery Partners</Typography>
             <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Active APIs for courier shipping and prescription home dispatch.</Typography>
           </Box>
-          <Grid container spacing={3}>
-            {[
-              { name: 'Delhivery API', time: '1-2 Days (Local)', status: 'Connected', logo: 'Dl' },
-              { name: 'Shadowfax Quick', time: '3 Hours (Hyperlocal)', status: 'Connected', logo: 'Sf' },
-              { name: 'DHL Express', time: '2-4 Days (National)', status: 'Maintenance', logo: 'Dhl' }
-            ].map((p, i) => (
-              <Grid item xs={12} md={4} key={i}>
-                <Card className="glass" sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2.5 }}>
-                  <Avatar sx={{ width: 44, height: 44, bgcolor: 'rgba(236,72,153,0.1)', color: '#ec4899', fontWeight: 700 }}>
-                    {p.logo}
-                  </Avatar>
-                  <Box>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>{p.name}</Typography>
-                    <Typography variant="caption" sx={{ color: '#a1a1aa', display: 'block', mt: 0.2 }}>{p.time}</Typography>
-                    <Typography variant="caption" sx={{ fontWeight: 750, color: p.status === 'Connected' ? '#10b981' : '#f59e0b', display: 'block', mt: 1, fontSize: '9px', textTransform: 'uppercase' }}>{p.status}</Typography>
-                  </Box>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+            <Grid container spacing={3}>
+              {[
+                { name: 'Delhivery API', time: '1-2 Days (Local)', status: 'Connected', logo: 'Dl' },
+                { name: 'Shadowfax Quick', time: '3 Hours (Hyperlocal)', status: 'Connected', logo: 'Sf' },
+                { name: 'DHL Express', time: '2-4 Days (National)', status: 'Maintenance', logo: 'Dhl' }
+              ].map((p, i) => (
+                <Grid xs={12} md={4} key={i}>
+                  <Card className="glass" sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2.5 }}>
+                    <Avatar sx={{ width: 44, height: 44, bgcolor: 'rgba(236,72,153,0.1)', color: '#ec4899', fontWeight: 700 }}>
+                      {p.logo}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>{p.name}</Typography>
+                      <Typography variant="caption" sx={{ color: '#a1a1aa', display: 'block', mt: 0.2 }}>{p.time}</Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 750, color: p.status === 'Connected' ? '#10b981' : '#f59e0b', display: 'block', mt: 1, fontSize: '9px', textTransform: 'uppercase' }}>{p.status}</Typography>
+                    </Box>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
         </Box>
       )}
 

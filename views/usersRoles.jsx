@@ -104,7 +104,7 @@ export default function UsersRolesView({ activeTab }) {
               { name: 'Pharmacist Expert', access: 'Approve or reject doctor prescriptions, audit stock logs.', count: '1 User' },
               { name: 'Support Staff', access: 'Access orders view, trigger delivery tracking checkups, search medicines.', count: '1 User' }
             ].map((role, i) => (
-              <Grid item xs={12} md={4} key={i}>
+              <Grid xs={12} md={4} key={i}>
                 <Card className="glass" sx={{ p: 3, height: 160, display: 'flex', flexDirection: 'column', justifycontent: 'space-between' }}>
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>

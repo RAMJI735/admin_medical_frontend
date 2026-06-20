@@ -110,7 +110,7 @@ export default function CustomersView({ activeTab }) {
               { title: 'Geriatric Support', count: '210 Patients', color: 'rgba(16,185,129,0.02)', borderColor: 'rgba(16,185,129,0.2)', desc: 'Senior citizens eligible for 15% discount on medicines.' },
               { title: 'General Over-Counter', count: '1,450 Patients', color: 'rgba(255,255,255,0.01)', borderColor: 'var(--card-border)', desc: 'General OTC users purchasing vitamins and pain relief tablets.' }
             ].map((gp, i) => (
-              <Grid item xs={12} sm={6} lg={3} key={i}>
+              <Grid xs={12} sm={6} lg={3} key={i}>
                 <Card className="glass" sx={{ height: 210, p: 3, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', bgcolor: gp.color, borderColor: gp.borderColor }}>
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

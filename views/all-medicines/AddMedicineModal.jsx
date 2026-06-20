@@ -119,18 +119,18 @@ export default function AddMedicineModal({ open, onClose, onSaved }) {
       <DialogContent dividers sx={{ borderColor: 'var(--card-border)', pt: 2.5 }}>
         <Box component="form" id="add-medicine-form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12} sm={6}>
               <Typography variant="caption" sx={labelSx}>Medicine Name *</Typography>
               <TextField fullWidth placeholder="e.g. Paracetamol 650mg" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12} sm={6}>
               <Typography variant="caption" sx={labelSx}>SKU / Code *</Typography>
               <TextField fullWidth placeholder="e.g. MED-1092" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} required />
             </Grid>
           </Grid>
 
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12} sm={6}>
               <Typography variant="caption" sx={labelSx}>Brand / Manufacturer *</Typography>
               <Select fullWidth value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} required>
                 {brands.map((b) => (
@@ -138,7 +138,7 @@ export default function AddMedicineModal({ open, onClose, onSaved }) {
                 ))}
               </Select>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12} sm={6}>
               <Typography variant="caption" sx={labelSx}>Therapeutic Category *</Typography>
               <Select fullWidth value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required>
                 {categories.map((cat) => (
@@ -149,15 +149,15 @@ export default function AddMedicineModal({ open, onClose, onSaved }) {
           </Grid>
 
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={4}>
+            <Grid xs={12} sm={4}>
               <Typography variant="caption" sx={labelSx}>Price (₹) *</Typography>
               <TextField fullWidth type="number" placeholder="e.g. 140.00" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid xs={12} sm={4}>
               <Typography variant="caption" sx={labelSx}>Initial Stock Qty *</Typography>
               <TextField fullWidth type="number" placeholder="e.g. 100" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} required />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid xs={12} sm={4}>
               <Typography variant="caption" sx={labelSx}>Expiry Date</Typography>
               <TextField fullWidth type="date" value={form.expiry} onChange={(e) => setForm({ ...form, expiry: e.target.value })} InputLabelProps={{ shrink: true }} />
             </Grid>

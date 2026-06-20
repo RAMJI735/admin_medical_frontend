@@ -67,7 +67,7 @@ export default function CouponsView({ activeTab }) {
 
           <Grid container spacing={3}>
             {coupons.map((coupon, i) => (
-              <Grid item xs={12} sm={6} lg={4} key={i}>
+              <Grid xs={12} sm={6} lg={4} key={i}>
                 <Card className="glass" sx={{ p: 3, height: 180, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderColor: coupon.status === 'Active' ? 'rgba(236,72,153,0.2)' : 'var(--card-border)', opacity: coupon.status === 'Active' ? 1 : 0.6 }}>
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

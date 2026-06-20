@@ -115,21 +115,21 @@ export default function SuppliersView({ activeTab }) {
               <TextField fullWidth placeholder="e.g. Apex Biotech Wholesalers" required />
             </Box>
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid xs={6}>
                 <Typography variant="caption" sx={{ fontWeight: 705, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Contact Person *</Typography>
                 <TextField fullWidth placeholder="e.g. Amit Kumar" required />
               </Grid>
-              <Grid item xs={6}>
+              <Grid xs={6}>
                 <Typography variant="caption" sx={{ fontWeight: 705, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>License Number *</Typography>
                 <TextField fullWidth placeholder="e.g. DL-20381-A" required />
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid xs={6}>
                 <Typography variant="caption" sx={{ fontWeight: 705, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Email *</Typography>
                 <TextField fullWidth type="email" placeholder="e.g. wholesale@apex.com" required />
               </Grid>
-              <Grid item xs={6}>
+              <Grid xs={6}>
                 <Typography variant="caption" sx={{ fontWeight: 705, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Phone *</Typography>
                 <TextField fullWidth placeholder="e.g. +91 90001-20000" required />
               </Grid>

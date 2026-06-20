@@ -48,7 +48,7 @@ function Inventory({
       </Box>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Box
             sx={{
               backgroundColor: 'rgba(16, 185, 129, 0.05)',
@@ -68,7 +68,7 @@ function Inventory({
             </Typography>
           </Box>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Box
             sx={{
               backgroundColor: 'rgba(245, 158, 11, 0.05)',
@@ -88,7 +88,7 @@ function Inventory({
             </Typography>
           </Box>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Box
             sx={{
               backgroundColor: 'rgba(239, 68, 68, 0.05)',

@@ -43,28 +43,28 @@ export default function ReportsView({ activeTab }) {
           </Box>
 
           <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} sm={6} lg={3}>
+            <Grid xs={12} sm={6} lg={3}>
               <Box sx={{ border: '1px solid var(--card-border)', p: 2.5, borderRadius: '16px' }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase' }}>Monthly Revenue</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--foreground)', mt: 1 }}>₹4,28,900</Typography>
                 <Typography variant="caption" sx={{ color: '#10b981', mt: 0.5, display: 'block' }}>↑ 14.5% versus last month</Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6} lg={3}>
+            <Grid xs={12} sm={6} lg={3}>
               <Box sx={{ border: '1px solid var(--card-border)', p: 2.5, borderRadius: '16px' }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase' }}>Average Rx Basket</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--foreground)', mt: 1 }}>₹685.20</Typography>
                 <Typography variant="caption" sx={{ color: '#10b981', mt: 0.5, display: 'block' }}>↑ 2.1% basket size expansion</Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6} lg={3}>
+            <Grid xs={12} sm={6} lg={3}>
               <Box sx={{ border: '1px solid var(--card-border)', p: 2.5, borderRadius: '16px' }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase' }}>Dispensary Sales Qty</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--foreground)', mt: 1 }}>1,820 Units</Typography>
                 <Typography variant="caption" sx={{ color: '#71717a', mt: 0.5, display: 'block' }}>Total medicine packs dispelled</Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6} lg={3}>
+            <Grid xs={12} sm={6} lg={3}>
               <Box sx={{ border: '1px solid var(--card-border)', p: 2.5, borderRadius: '16px' }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase' }}>Net Store Profit Margin</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--foreground)', mt: 1 }}>24.8%</Typography>
