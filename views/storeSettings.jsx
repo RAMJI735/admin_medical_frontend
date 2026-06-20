@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -12,13 +12,52 @@ import {
   Button,
   Snackbar,
   Alert,
+  CircularProgress,
 } from '@mui/material';
+import { settingsService } from '../services/settingsService/settingsService';
 
 export default function StoreSettingsView({ activeTab }) {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const showToast = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });
+  };
+
+  const [razorpayKeyId, setRazorpayKeyId] = useState('');
+  const [razorpayKeySecret, setRazorpayKeySecret] = useState('');
+  const [loadingGateway, setLoadingGateway] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'payment-gateway') {
+      const fetchGateway = async () => {
+        setLoadingGateway(true);
+        try {
+          const data = await settingsService.getSetting('payment-gateway');
+          if (data && data.value) {
+            setRazorpayKeyId(data.value.razorpayKeyId || '');
+            setRazorpayKeySecret(data.value.razorpayKeySecret || '');
+          }
+        } catch (err) {
+          showToast('Failed to load payment credentials: ' + err.message, 'error');
+        } finally {
+          setLoadingGateway(false);
+        }
+      };
+      fetchGateway();
+    }
+  }, [activeTab]);
+
+  const handleGatewaySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await settingsService.updateSetting('payment-gateway', {
+        razorpayKeyId,
+        razorpayKeySecret
+      });
+      showToast('Payment credentials saved successfully.');
+    } catch (err) {
+      showToast('Failed to save credentials: ' + err.message, 'error');
+    }
   };
 
   const handleSnackbarClose = () => {
@@ -119,23 +158,38 @@ export default function StoreSettingsView({ activeTab }) {
             <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Configure Stripe or Razorpay API credentials for patient checkouts.</Typography>
           </Box>
 
-          <Box component="form" onSubmit={(e) => { e.preventDefault(); showToast('Payment tokens saved successfully.'); }} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Box>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Razorpay Key ID</Typography>
-              <TextField fullWidth defaultValue="rzp_live_8291039829" />
+          {loadingGateway ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress size={28} sx={{ color: '#ec4899' }} />
             </Box>
-            <Box>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Razorpay Key Secret</Typography>
-              <TextField fullWidth type="password" defaultValue="secret_token_placeholder" />
+          ) : (
+            <Box component="form" onSubmit={handleGatewaySubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Razorpay Key ID</Typography>
+                <TextField 
+                  fullWidth 
+                  value={razorpayKeyId} 
+                  onChange={(e) => setRazorpayKeyId(e.target.value)} 
+                />
+              </Box>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#a1a1aa', mb: 1, display: 'block', textTransform: 'uppercase' }}>Razorpay Key Secret</Typography>
+                <TextField 
+                  fullWidth 
+                  type="password" 
+                  value={razorpayKeySecret} 
+                  onChange={(e) => setRazorpayKeySecret(e.target.value)} 
+                />
+              </Box>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ background: 'linear-gradient(to right, #ec4899, #9333ea)', color: 'white' }}
+              >
+                Save Credentials
+              </Button>
             </Box>
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ background: 'linear-gradient(to right, #ec4899, #9333ea)', color: 'white' }}
-            >
-              Save Credentials
-            </Button>
-          </Box>
+          )}
         </Paper>
       )}
 

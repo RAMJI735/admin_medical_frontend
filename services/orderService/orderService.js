@@ -29,5 +29,21 @@ export const orderService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  updateOrder: async (id, data) => {
+    try {
+      return await api.put(`/orders/${id}`, data);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteOrder: async (id) => {
+    try {
+      return await api.delete(`/orders/${id}`);
+    } catch (error) {
+      throw error;
+    }
   }
 };
