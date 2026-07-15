@@ -94,12 +94,14 @@ export default function EditMedicineModal({ open, medicine, onClose, onSaved }) 
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          background: 'var(--card-bg, #18181b)',
-          border: '1px solid var(--card-border, rgba(255,255,255,0.08))',
-          borderRadius: '20px',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+      slotProps={{
+        paper: {
+          sx: {
+            background: 'var(--card-bg, #18181b)',
+            border: '1px solid var(--card-border, rgba(255,255,255,0.08))',
+            borderRadius: '20px',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+          },
         },
       }}
     >
@@ -167,7 +169,7 @@ export default function EditMedicineModal({ open, medicine, onClose, onSaved }) 
             </Grid>
             <Grid xs={12} sm={4}>
               <Typography variant="caption" sx={labelSx}>Expiry Date</Typography>
-              <TextField fullWidth type="date" value={form.expiry} onChange={(e) => setForm({ ...form, expiry: e.target.value })} InputLabelProps={{ shrink: true }} />
+              <TextField fullWidth type="date" value={form.expiry} onChange={(e) => setForm({ ...form, expiry: e.target.value })} slotProps={{ inputLabel: { shrink: true } }} />
             </Grid>
           </Grid>
         </Box>

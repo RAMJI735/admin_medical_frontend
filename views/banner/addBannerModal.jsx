@@ -106,12 +106,14 @@ export default function AddBannerModal({ open, banner, onClose, onSaved }) {
       onClose={onClose}
       maxWidth="xs"
       fullWidth
-      PaperProps={{
-        sx: {
-          background: 'var(--card-bg, #18181b)',
-          border: '1px solid var(--card-border, rgba(255,255,255,0.08))',
-          borderRadius: '20px',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+      slotProps={{
+        paper: {
+          sx: {
+            background: 'var(--card-bg, #18181b)',
+            border: '1px solid var(--card-border, rgba(255,255,255,0.08))',
+            borderRadius: '20px',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+          },
         },
       }}
     >

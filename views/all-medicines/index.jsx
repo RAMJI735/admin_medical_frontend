@@ -140,6 +140,7 @@ function AllMedicines({
               <TableCell>Price</TableCell>
               <TableCell>Stock</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Expiry Date</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -171,17 +172,64 @@ function AllMedicines({
                         m.status === 'In Stock'
                           ? 'rgba(16, 185, 129, 0.1)'
                           : m.status === 'Low Stock'
-                          ? 'rgba(245, 158, 11, 0.1)'
-                          : 'rgba(239, 68, 68, 0.1)',
+                            ? 'rgba(245, 158, 11, 0.1)'
+                            : 'rgba(239, 68, 68, 0.1)',
                       borderColor:
                         m.status === 'In Stock'
                           ? 'rgba(16, 185, 129, 0.2)'
                           : m.status === 'Low Stock'
-                          ? 'rgba(245, 158, 11, 0.2)'
-                          : 'rgba(239, 68, 68, 0.2)',
+                            ? 'rgba(245, 158, 11, 0.2)'
+                            : 'rgba(239, 68, 68, 0.2)',
                       color: m.status === 'In Stock' ? '#10b981' : m.status === 'Low Stock' ? '#f59e0b' : '#ef4444',
                     }}
                   />
+                </TableCell>
+                <TableCell>
+                  {(() => {
+                    if (!m?.expiry || m.expiry === 'N/A') return <Typography variant="body2" sx={{ color: '#a1a1aa' }}>N/A</Typography>;
+                    
+                    const expiryDate = new Date(m.expiry);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    const diffTime = expiryDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    const isExpired = diffDays < 0;
+                    
+                    let statusText = '';
+                    if (isExpired) {
+                      statusText = 'Expired';
+                    } else if (diffDays === 0) {
+                      statusText = 'Expires Today';
+                    } else {
+                      statusText = `Not Expired (${diffDays} days remaining)`;
+                    }
+                    
+                    return (
+                      <Box>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: isExpired ? '#ef4444' : '#a1a1aa',
+                            fontWeight: isExpired ? 600 : 400
+                          }}
+                        >
+                          {m.expiry}
+                        </Typography>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: isExpired ? '#ef4444' : (diffDays <= 30 ? '#f59e0b' : '#10b981'),
+                            display: 'block',
+                            mt: 0.5,
+                            fontWeight: 500
+                          }}
+                        >
+                          {statusText}
+                        </Typography>
+                      </Box>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell align="right">
                   <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
