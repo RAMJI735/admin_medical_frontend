@@ -1,0 +1,128 @@
+[
+    {
+        "menu": "overview",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "medicines",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "banner",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "orders",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "prescriptions",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "customers",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "suppliers",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "coupons",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "payments",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "delivery",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "reports",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "users",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "staff",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    },
+    {
+        "menu": "settings",
+        "permission": [
+            "add",
+            "view",
+            "edit",
+            "delete"
+        ]
+    }
+]

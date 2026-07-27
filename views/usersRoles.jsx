@@ -19,6 +19,9 @@ import {
   Alert,
 } from '@mui/material';
 
+import PermissionData from "@/data/PermissionData.json";
+import PermissionList from './PermissionList';
+
 export default function UsersRolesView({ activeTab }) {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
@@ -93,31 +96,9 @@ export default function UsersRolesView({ activeTab }) {
 
       {/* ROLES VIEW */}
       {activeTab === 'roles' && (
-        <Box>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>Backend Roles Configurator</Typography>
-            <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Configure permissions structure mapping staff credentials to operations.</Typography>
-          </Box>
-          <Grid container spacing={3}>
-            {[
-              { name: 'Super Admin', access: 'All access, database settings write-level, master role.', count: '1 User' },
-              { name: 'Pharmacist Expert', access: 'Approve or reject doctor prescriptions, audit stock logs.', count: '1 User' },
-              { name: 'Support Staff', access: 'Access orders view, trigger delivery tracking checkups, search medicines.', count: '1 User' }
-            ].map((role, i) => (
-              <Grid xs={12} md={4} key={i}>
-                <Card className="glass" sx={{ p: 3, height: 160, display: 'flex', flexDirection: 'column', justifycontent: 'space-between' }}>
-                  <Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 750, color: 'var(--foreground)' }}>{role.name}</Typography>
-                      <Chip label={role.count} size="small" sx={{ fontSize: '9px', fontWeight: 700 }} />
-                    </Box>
-                    <Typography variant="caption" sx={{ color: '#a1a1aa', lineHeight: 1.5, display: 'block' }}>{role.access}</Typography>
-                  </Box>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+        <>
+          <PermissionList PermissionData={PermissionData} />
+        </>
       )}
 
       {/* PERMISSIONS VIEW */}

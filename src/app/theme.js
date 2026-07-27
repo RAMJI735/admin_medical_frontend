@@ -4,9 +4,12 @@ import { createTheme } from '@mui/material/styles';
 
 export const theme = createTheme({
   palette: {
-    mode: 'dark', // Tells MUI to render appropriate defaults for text, inputs, etc.
+    mode: 'dark',
     primary: {
-      main: '#ec4899', // Pink-500
+      main: '#6366f1', // Indigo-500
+    },
+    secondary: {
+      main: '#8b5cf6', // Violet-500
     },
     background: {
       default: 'var(--background)',
@@ -14,7 +17,7 @@ export const theme = createTheme({
     },
     text: {
       primary: 'var(--foreground)',
-      secondary: '#a1a1aa',
+      secondary: '#94a3b8',
     },
     divider: 'rgba(255, 255, 255, 0.08)',
   },
@@ -47,8 +50,8 @@ export const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: '12px',
-          padding: '10px 16px',
+          borderRadius: '10px',
+          padding: '8px 16px',
         },
       },
     },
@@ -58,7 +61,7 @@ export const theme = createTheme({
           backgroundImage: 'none',
           backgroundColor: 'var(--card-bg)',
           borderColor: 'var(--card-border)',
-          borderRadius: '16px',
+          borderRadius: '14px',
           borderStyle: 'solid',
           borderWidth: '1px',
         },
@@ -70,7 +73,7 @@ export const theme = createTheme({
           backgroundImage: 'none',
           backgroundColor: 'var(--card-bg)',
           borderColor: 'var(--card-border)',
-          borderRadius: '16px',
+          borderRadius: '14px',
           borderStyle: 'solid',
           borderWidth: '1px',
         },
@@ -80,17 +83,17 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: '12px',
-            backgroundColor: 'rgba(9, 9, 11, 0.5)',
-            fontSize: '0.75rem',
+            borderRadius: '10px',
+            backgroundColor: 'rgba(17, 24, 39, 0.6)',
+            fontSize: '0.85rem',
             '& fieldset': {
               borderColor: 'var(--card-border)',
             },
             '&:hover fieldset': {
-              borderColor: 'rgba(236, 72, 153, 0.4)',
+              borderColor: 'rgba(99, 102, 241, 0.5)',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#ec4899',
+              borderColor: '#6366f1',
             },
           },
         },
@@ -99,17 +102,17 @@ export const theme = createTheme({
     MuiSelect: {
       styleOverrides: {
         root: {
-          borderRadius: '12px',
-          backgroundColor: 'rgba(9, 9, 11, 0.5)',
-          fontSize: '0.75rem',
+          borderRadius: '10px',
+          backgroundColor: 'rgba(17, 24, 39, 0.6)',
+          fontSize: '0.85rem',
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: 'var(--card-border)',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(236, 72, 153, 0.4)',
+            borderColor: 'rgba(99, 102, 241, 0.5)',
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#ec4899',
+            borderColor: '#6366f1',
           },
         },
       },
@@ -117,12 +120,12 @@ export const theme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         root: {
-          borderColor: 'rgba(255, 255, 255, 0.08)',
+          borderColor: 'rgba(255, 255, 255, 0.06)',
         },
         head: {
-          fontWeight: 700,
-          color: '#a1a1aa',
-          fontSize: '0.625rem',
+          fontWeight: 750,
+          color: '#94a3b8',
+          fontSize: '0.7rem',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
         },

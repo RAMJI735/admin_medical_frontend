@@ -46,7 +46,7 @@ export default function Providers({ children }) {
     palette: {
       mode: isLightTheme ? 'light' : 'dark',
       primary: {
-        main: '#ec4899', // Pink-500
+        main: '#6366f1', // Indigo-500
       },
       background: {
         default: isLightTheme ? '#f8fafc' : '#09090b',

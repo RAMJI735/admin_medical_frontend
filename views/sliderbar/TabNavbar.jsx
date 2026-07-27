@@ -31,15 +31,21 @@ export default function TopNavbar({
             position="sticky"
             elevation={0}
             sx={{
-                background: isLightTheme ? '#ffffff' : '#111111',
-                borderBottom: '1px solid #333',
-                color: isLightTheme ? '#000' : '#fff'
+                background: isLightTheme ? '#ffffff' : '#111827',
+                border: isLightTheme ? '1px solid #e2e8f0' : '1px solid #1f2937',
+                color: isLightTheme ? '#0f172a' : '#f8fafc',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: isLightTheme ? '0 2px 8px rgba(0,0,0,0.04)' : '0 4px 12px rgba(0,0,0,0.3)',
             }}
         >
             <Toolbar
                 sx={{
                     display: 'flex',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    px: { xs: 2.5, sm: 3 },
+                    py: 0.5,
+                    gap: 1.5,
                 }}
             >
 
@@ -63,7 +69,11 @@ export default function TopNavbar({
                     <Typography
                         variant="h6"
                         sx={{
-                            fontWeight: 600
+                            fontWeight: 600,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            fontSize: { xs: '14px', sm: '18px' }
                         }}
                     >
                         {title}
@@ -75,7 +85,7 @@ export default function TopNavbar({
                     style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px'
+                        gap: '8px'
                     }}
                 >
 
@@ -88,8 +98,8 @@ export default function TopNavbar({
                     >
                         {
                             isLightTheme
-                                ? <LightModeIcon />
-                                : <DarkModeIcon />
+                                ? <LightModeIcon fontSize="small" />
+                                : <DarkModeIcon fontSize="small" />
                         }
                     </IconButton>
 
@@ -99,7 +109,7 @@ export default function TopNavbar({
                             color: isLightTheme ? '#000' : '#fff'
                         }}
                     >
-                        <NotificationsIcon />
+                        <NotificationsIcon fontSize="small" />
                     </IconButton>
 
                     {/* User Profile */}
@@ -107,21 +117,22 @@ export default function TopNavbar({
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '10px'
+                            gap: '8px'
                         }}
                     >
                         <Avatar
                             sx={{
-                                width: 35,
-                                height: 35,
+                                width: 32,
+                                height: 32,
                                 bgcolor: '#00b8f2',
-                                fontWeight: 700
+                                fontWeight: 700,
+                                fontSize: '13px'
                             }}
                         >
                             {user.name ? user.name.charAt(0).toUpperCase() : 'A'}
                         </Avatar>
 
-                        <div>
+                        <div className="hidden sm:block">
                             <Typography
                                 variant="body2"
                                 sx={{

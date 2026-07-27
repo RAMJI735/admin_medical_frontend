@@ -12,7 +12,7 @@ import navbarItem from "@/data/navigation.json";
 import { useThemeMode } from "@/app/providers";
 import { useAuth } from "../../services/AuthService/AuthContext";
 
-export const Silder = () => {
+export const Silder = ({ onClose }) => {
     const pathname = usePathname();
     const router = useRouter();
     const { isLightTheme } = useThemeMode();
@@ -34,13 +34,14 @@ export const Silder = () => {
     };
 
     const handleLogout = () => {
+        if (onClose) onClose();
         logout();
         router.push('/');
     };
 
     return (
         <aside
-            className={`w-[250px] h-screen p-4 flex flex-col justify-between border-r
+            className={`w-[260px] h-full p-4 flex flex-col justify-between border-r
       ${isLightTheme
                     ? "bg-white border-gray-200"
                     : "bg-[#111827] border-gray-800"
@@ -118,6 +119,7 @@ export const Silder = () => {
 
                                 <Link
                                     href={item.link}
+                                    onClick={() => onClose?.()}
                                     className={`block p-3 rounded-lg transition-all
                     ${pathname === item.link
                                             ? "bg-[#00b8f2] text-white"
@@ -147,6 +149,7 @@ export const Silder = () => {
                                             <Link
                                                 key={subItem.id}
                                                 href={subItem.link}
+                                                onClick={() => onClose?.()}
                                                 className={`p-2 rounded-lg text-sm transition-all
                           ${pathname === subItem.link
                                                         ? "bg-[#00b8f2] text-white"

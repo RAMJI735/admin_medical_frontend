@@ -27,6 +27,14 @@ api.interceptors.response.use(
     return response.data;
   },
   (error) => {
+    if (typeof window !== 'undefined' && error.response?.status === 401) {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('token');
+      localStorage.removeItem('currentUser');
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
+      }
+    }
     const message = error.response?.data?.message || error.message || 'Something went wrong';
     return Promise.reject(new Error(message));
   }
