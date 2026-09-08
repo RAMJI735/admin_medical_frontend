@@ -7,35 +7,50 @@ const MedicineContext = createContext(null);
 
 export function MedicineProvider({ children }) {
   const [medicines, setMedicines] = useState([]);
+  const [totalMedicines, setTotalMedicines] = useState(0);
   const [categories, setCategories] = useState([]);
+  const [totalCategories, setTotalCategories] = useState(0);
   const [brands, setBrands] = useState([]);
+  const [totalBrands, setTotalBrands] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const loadMedicines = async () => {
+  const loadMedicines = async (params = {}) => {
     setLoading(true);
     try {
-      const data = await medicineService.getMedicines(100);
-      const formatted = (data.medicines || []).map(m => {
-        const stockNum = m.stock;
-        const status = stockNum === 0 ? 'Out of Stock' : (stockNum <= m.minStockLevel ? 'Low Stock' : 'In Stock');
+      const data = await medicineService.getMedicines(params);
+      let rawList = [];
+      let total = 0;
+
+      if (Array.isArray(data)) {
+        rawList = data;
+        total = data.length;
+      } else if (data && typeof data === 'object') {
+        rawList = data.medicines || data.data || [];
+        total = data.totalMedicines ?? data.totalCount ?? data.total ?? rawList.length;
+      }
+
+      const formatted = rawList.map(m => {
+        const stockNum = m.stock ?? 0;
+        const status = stockNum === 0 ? 'Out of Stock' : (stockNum <= (m.minStockLevel || 10) ? 'Low Stock' : 'In Stock');
         return {
           id: m._id,
-          name: m.medicineName,
-          sku: m.batchNumber,
-          categoryId: m.category?._id || '',
-          category: m.category?.categoryName || 'Uncategorized',
+          name: m.medicineName || m.name || '',
+          sku: m.batchNumber || m.sku || '',
+          categoryId: m.category?._id || m.category || '',
+          category: m.category?.categoryName || (typeof m.category === 'string' ? m.category : 'Uncategorized'),
           brand: m.manufacturer && typeof m.manufacturer === 'object' ? (m.manufacturer.brandName || 'Unbranded') : (m.manufacturer || 'Unbranded'),
           brandId: m.manufacturer && typeof m.manufacturer === 'object' ? (m.manufacturer._id || '') : (m.manufacturer || ''),
           stock: stockNum,
           stockRaw: stockNum,
-          price: `₹${m.sellingPrice.toFixed(2)}`,
-          priceRaw: m.sellingPrice,
+          price: typeof m.sellingPrice === 'number' ? `₹${m.sellingPrice.toFixed(2)}` : (m.price || '₹0.00'),
+          priceRaw: m.sellingPrice || 0,
           status,
-          expiry: m.expiryDate ? new Date(m.expiryDate).toISOString().split('T')[0] : 'N/A'
+          expiry: m.expiryDate ? new Date(m.expiryDate).toISOString().split('T')[0] : (m.expiry || 'N/A')
         };
       });
       setMedicines(formatted);
-      return formatted;
+      setTotalMedicines(total);
+      return { medicines: formatted, total };
     } catch (error) {
       throw error;
     } finally {
@@ -43,11 +58,41 @@ export function MedicineProvider({ children }) {
     }
   };
 
-  const loadCategories = async () => {
+  const loadCategories = async (params = {}) => {
     try {
-      const data = await medicineService.getCategories();
-      setCategories(data);
-      return data;
+      const data = await medicineService.getCategories(params);
+      let rawList = [];
+      let total = 0;
+      if (Array.isArray(data)) {
+        rawList = data;
+        total = data.length;
+      } else if (data && typeof data === 'object') {
+        rawList = data.categories || data.data || [];
+        total = data.totalCategories ?? data.totalCount ?? data.total ?? rawList.length;
+      }
+      setCategories(rawList);
+      setTotalCategories(total);
+      return { categories: rawList, total };
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const loadBrands = async (params = {}) => {
+    try {
+      const data = await medicineService.getBrands(params);
+      let rawList = [];
+      let total = 0;
+      if (Array.isArray(data)) {
+        rawList = data;
+        total = data.length;
+      } else if (data && typeof data === 'object') {
+        rawList = data.brands || data.data || [];
+        total = data.totalBrands ?? data.totalCount ?? data.total ?? rawList.length;
+      }
+      setBrands(rawList);
+      setTotalBrands(total);
+      return { brands: rawList, total };
     } catch (error) {
       throw error;
     }
@@ -113,16 +158,6 @@ export function MedicineProvider({ children }) {
     }
   };
 
-  const loadBrands = async () => {
-    try {
-      const data = await medicineService.getBrands();
-      setBrands(data);
-      return data;
-    } catch (error) {
-      throw error;
-    }
-  };
-
   const addBrand = async (body) => {
     try {
       const res = await medicineService.addBrand(body);
@@ -157,8 +192,11 @@ export function MedicineProvider({ children }) {
     <MedicineContext.Provider
       value={{
         medicines,
+        totalMedicines,
         categories,
+        totalCategories,
         brands,
+        totalBrands,
         loading,
         loadMedicines,
         loadCategories,

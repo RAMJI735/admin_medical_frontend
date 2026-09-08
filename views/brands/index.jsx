@@ -17,7 +17,8 @@ import {
   Avatar,
   Chip,
   Snackbar,
-  Alert
+  Alert,
+  TablePagination
 } from '@mui/material';
 import { useMedicine } from '../../services/medicineService/MedicineContext';
 import AddBrandModal from './AddBrandModal';
@@ -26,6 +27,7 @@ import EditBrandModal from './EditBrandModal';
 function Brands() {
   const {
     brands,
+    totalBrands,
     loadBrands,
     deleteBrand,
     loading
@@ -38,6 +40,10 @@ function Brands() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
+  // Pagination state for backend API calls
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const showToast = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });
   };
@@ -46,31 +52,48 @@ function Brands() {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // Load brands on mount
+  // Load paginated brands from backend whenever page, limit, or search query changes
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        await loadBrands();
+        await loadBrands({
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchQuery
+        });
       } catch (err) {
         showToast('Failed to load brands: ' + (err.response?.data?.message || err.message), 'error');
       }
     };
     fetchBrands();
-  }, []);
+  }, [currentPage, itemsPerPage, searchQuery]);
 
-  // Filter brands based on search
+  // Filter brands based on search as fallback
   const filteredBrands = useMemo(() => {
     if (!brands) return [];
     return brands.filter(b =>
-      b.brandName.toLowerCase().includes(searchQuery.toLowerCase())
+      (b.brandName || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [brands, searchQuery]);
+
+  const displayBrands = useMemo(() => {
+    if (totalBrands > 0 && filteredBrands.length <= itemsPerPage) {
+      return filteredBrands;
+    }
+    return filteredBrands.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
+  }, [filteredBrands, currentPage, itemsPerPage, totalBrands]);
+
+  const totalEntries = totalBrands || filteredBrands.length;
+  const startEntry = totalEntries === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const endEntry = Math.min(currentPage * itemsPerPage, totalEntries);
 
   // Handle Delete Brand
   const handleDelete = async (id, name) => {
     if (deleteConfirmId !== id) {
       setDeleteConfirmId(id);
-      // Auto cancel after 3 seconds
       setTimeout(() => {
         setDeleteConfirmId(prev => prev === id ? null : prev);
       }, 3000);
@@ -96,7 +119,7 @@ function Brands() {
   };
 
   return (
-    <Paper className="glass" sx={{ p: 3 }}>
+    <Paper className="glass" sx={{ p: 3, borderRadius: 0 }}>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -138,7 +161,10 @@ function Brands() {
             placeholder="Search brands..."
             size="small"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             sx={{ width: 250 }}
           />
           <Button
@@ -157,18 +183,18 @@ function Brands() {
         </Box>
       </Box>
 
-      <TableContainer sx={{ boxShadow: 'none', background: 'transparent' }}>
+      <TableContainer sx={{ boxShadow: 'none', background: 'transparent', borderRadius: 0 }}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Logo</TableCell>
-              <TableCell>Brand Name</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell sx={{ color: 'var(--foreground)', fontWeight: 600 }}>Logo</TableCell>
+              <TableCell sx={{ color: 'var(--foreground)', fontWeight: 600 }}>Brand Name</TableCell>
+              <TableCell sx={{ color: 'var(--foreground)', fontWeight: 600 }}>Status</TableCell>
+              <TableCell align="right" sx={{ color: 'var(--foreground)', fontWeight: 600 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredBrands.map((brand) => {
+            {displayBrands.map((brand) => {
               const isDeleteConfirm = deleteConfirmId === brand._id;
               return (
                 <TableRow key={brand._id} sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.02)' } }}>
@@ -242,7 +268,7 @@ function Brands() {
                 </TableRow>
               );
             })}
-            {filteredBrands.length === 0 && (
+            {displayBrands.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} align="center" sx={{ color: '#a1a1aa', py: 6 }}>
                   {loading ? 'Loading brands...' : 'No brands available.'}
@@ -252,6 +278,30 @@ function Brands() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', mt: 2, gap: 2 }}>
+        <Typography variant="body2" sx={{ color: '#a1a1aa' }}>
+          Showing {startEntry}–{endEntry} of {totalEntries} entries
+        </Typography>
+        <TablePagination
+          component="div"
+          count={totalEntries}
+          page={currentPage - 1}
+          rowsPerPage={itemsPerPage}
+          onPageChange={(_, newPage) => setCurrentPage(newPage + 1)}
+          onRowsPerPageChange={(e) => {
+            setItemsPerPage(Number(e.target.value));
+            setCurrentPage(1);
+          }}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          sx={{
+            color: '#a1a1aa',
+            borderTop: 'none',
+            '.MuiTablePagination-selectIcon': { color: '#a1a1aa' },
+            '.MuiTablePagination-actions button': { color: '#a1a1aa' },
+          }}
+        />
+      </Box>
     </Paper>
   );
 }

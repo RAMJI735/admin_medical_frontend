@@ -30,6 +30,21 @@ export default function CustomersView({ activeTab }) {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const customerList = [
+    { name: 'Ramesh Kumar', email: 'ramesh@gmail.com', phone: '+91 98765-43210', orders: 12, group: 'Hypertension' },
+    { name: 'Sunita Sharma', email: 'sunita.s@gmail.com', phone: '+91 98123-45678', orders: 5, group: 'Diabetic Care' },
+    { name: 'Mohit Verma', email: 'mohit.v@yahoo.com', phone: '+91 99000-88877', orders: 2, group: 'General Healthcare' },
+    { name: 'Anjali Gupta', email: 'anjali@company.in', phone: '+91 88877-66554', orders: 21, group: 'VIP Patient' }
+  ];
+
+  const totalEntries = customerList.length;
+  const startEntry = totalEntries === 0 ? 0 : page * rowsPerPage + 1;
+  const endEntry = Math.min((page + 1) * rowsPerPage, totalEntries);
+  const paginatedCustomers = customerList.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <Snackbar
@@ -45,31 +60,26 @@ export default function CustomersView({ activeTab }) {
 
       {/* CUSTOMERS LIST VIEW */}
       {activeTab === 'all-customers' && (
-        <Paper className="glass" sx={{ p: 3 }}>
+        <Paper className="glass" sx={{ p: 3, borderRadius: 0 }}>
           <Box sx={{ mb: 3 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>All Registered Customers</Typography>
             <Typography variant="body2" sx={{ color: '#a1a1aa', mt: 0.5 }}>Patient repository and historical buyer database.</Typography>
           </Box>
 
-          <TableContainer>
+          <TableContainer sx={{ borderRadius: 0 }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Patient Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Mobile</TableCell>
-                  <TableCell>Total Orders</TableCell>
-                  <TableCell>Health Group</TableCell>
-                  <TableCell align="right">Actions</TableCell>
+                  <TableCell sx={{ color: 'var(--foreground)', fontWeight: 600 }}>Patient Name</TableCell>
+                  <TableCell sx={{ color: 'var(--foreground)', fontWeight: 600 }}>Email</TableCell>
+                  <TableCell sx={{ color: 'var(--foreground)', fontWeight: 600 }}>Mobile</TableCell>
+                  <TableCell sx={{ color: 'var(--foreground)', fontWeight: 600 }}>Total Orders</TableCell>
+                  <TableCell sx={{ color: 'var(--foreground)', fontWeight: 600 }}>Health Group</TableCell>
+                  <TableCell align="right" sx={{ color: 'var(--foreground)', fontWeight: 600 }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {[
-                  { name: 'Ramesh Kumar', email: 'ramesh@gmail.com', phone: '+91 98765-43210', orders: 12, group: 'Hypertension' },
-                  { name: 'Sunita Sharma', email: 'sunita.s@gmail.com', phone: '+91 98123-45678', orders: 5, group: 'Diabetic Care' },
-                  { name: 'Mohit Verma', email: 'mohit.v@yahoo.com', phone: '+91 99000-88877', orders: 2, group: 'General Healthcare' },
-                  { name: 'Anjali Gupta', email: 'anjali@company.in', phone: '+91 88877-66554', orders: 21, group: 'VIP Patient' }
-                ].map((cust, i) => (
+                {paginatedCustomers.map((cust, i) => (
                   <TableRow key={i} sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.02)' } }}>
                     <TableCell sx={{ fontWeight: 700, color: 'var(--foreground)' }}>{cust.name}</TableCell>
                     <TableCell sx={{ color: '#a1a1aa' }}>{cust.email}</TableCell>
@@ -93,6 +103,30 @@ export default function CustomersView({ activeTab }) {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', mt: 2, gap: 2 }}>
+            <Typography variant="body2" sx={{ color: '#a1a1aa' }}>
+              Showing {startEntry}–{endEntry} of {totalEntries} entries
+            </Typography>
+            <TablePagination
+              component="div"
+              count={totalEntries}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              onRowsPerPageChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setPage(0);
+              }}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+              sx={{
+                color: '#a1a1aa',
+                borderTop: 'none',
+                '.MuiTablePagination-selectIcon': { color: '#a1a1aa' },
+                '.MuiTablePagination-actions button': { color: '#a1a1aa' },
+              }}
+            />
+          </Box>
         </Paper>
       )}
 

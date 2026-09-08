@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -15,11 +15,22 @@ import AddCategoryModal from './AddCategoryModal';
 import EditCategoryModal from './EditCategoryModal';
 
 function Categories() {
-  const { categories, medicines, deleteCategory } = useMedicine();
+  const { categories, totalCategories, medicines, loadCategories, deleteCategory } = useMedicine();
   const [addOpen, setAddOpen] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
   const [deleteCatConfirmId, setDeleteCatConfirmId] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  // Pagination states for backend API calls
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    loadCategories({
+      page: currentPage,
+      limit: itemsPerPage
+    }).catch(err => console.error("Error loading categories from backend", err));
+  }, [currentPage, itemsPerPage]);
 
   const showToast = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });
@@ -49,7 +60,7 @@ function Categories() {
   };
 
   return (
-    <Paper className="glass" sx={{ p: 3 }}>
+    <Paper className="glass" sx={{ p: 3, borderRadius: 0 }}>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -103,10 +114,15 @@ function Categories() {
       {/* Categories List Table - Full Width */}
       <CategoryTable
         categories={categories}
+        totalCategories={totalCategories}
         medicines={medicines}
         deleteCatConfirmId={deleteCatConfirmId}
         handleDeleteCategory={handleDeleteCategory}
         setEditCategory={setEditCategory}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        itemsPerPage={itemsPerPage}
+        setItemsPerPage={setItemsPerPage}
       />
     </Paper>
   );

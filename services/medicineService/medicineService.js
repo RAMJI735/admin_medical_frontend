@@ -1,9 +1,10 @@
 import { api } from '@/utils/api';
 
 export const medicineService = {
-  getMedicines: async (limit = 100) => {
+  getMedicines: async (params = {}) => {
     try {
-      return await api.get(`/medicines?limit=${limit}`);
+      const query = typeof params === 'object' && params !== null ? new URLSearchParams(params).toString() : `limit=${params}`;
+      return await api.get(`/medicines${query ? `?${query}` : ''}`);
     } catch (error) {
       throw error;
     }
@@ -33,9 +34,10 @@ export const medicineService = {
     }
   },
 
-  getCategories: async () => {
+  getCategories: async (params = {}) => {
     try {
-      return await api.get('/categories');
+      const query = typeof params === 'object' && params !== null ? new URLSearchParams(params).toString() : '';
+      return await api.get(`/categories${query ? `?${query}` : ''}`);
     } catch (error) {
       throw error;
     }
@@ -65,9 +67,10 @@ export const medicineService = {
     }
   },
 
-  getBrands: async () => {
+  getBrands: async (params = {}) => {
     try {
-      return await api.get('/brands');
+      const query = typeof params === 'object' && params !== null ? new URLSearchParams(params).toString() : '';
+      return await api.get(`/brands${query ? `?${query}` : ''}`);
     } catch (error) {
       throw error;
     }

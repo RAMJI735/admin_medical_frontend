@@ -106,6 +106,7 @@ export default function EditMedicineModal({ open, medicine, onClose, onSaved }) 
       }}
     >
       <DialogTitle
+        component="div"
         sx={{
           pb: 1,
           display: 'flex',
@@ -114,10 +115,10 @@ export default function EditMedicineModal({ open, medicine, onClose, onSaved }) 
         }}
       >
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>
+          <Typography component="div" variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>
             Edit Medicine
           </Typography>
-          <Typography variant="caption" sx={{ color: '#71717a' }}>
+          <Typography component="div" variant="caption" sx={{ color: '#71717a' }}>
             Update the details for this formulation.
           </Typography>
         </Box>

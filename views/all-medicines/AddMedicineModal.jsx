@@ -104,12 +104,12 @@ export default function AddMedicineModal({ open, onClose, onSaved }) {
         },
       }}
     >
-      <DialogTitle sx={{ pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DialogTitle component="div" sx={{ pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>
+          <Typography component="div" variant="h6" sx={{ fontWeight: 700, color: 'var(--foreground)' }}>
             Add New Medicine
           </Typography>
-          <Typography variant="caption" sx={{ color: '#71717a' }}>
+          <Typography component="div" variant="caption" sx={{ color: '#71717a' }}>
             Register a new drug SKU with stock, pricing, and categorizations.
           </Typography>
         </Box>
